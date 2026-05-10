@@ -136,33 +136,31 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
           </div>
         </div>
 
-        {/* Stadium Grid Container with horizontal scroll for small screens if needed */}
+        {/* Static Grid Container matching Admin */}
         <div className="overflow-x-auto pb-8">
-          <div 
-            className="relative w-full min-w-[600px] aspect-[4/3] bg-white rounded-3xl shadow-xl overflow-hidden border border-stone-200"
-            style={{ backgroundImage: "linear-gradient(#f5f5f4 1px, transparent 1px), linear-gradient(90deg, #f5f5f4 1px, transparent 1px)", backgroundSize: "40px 40px" }}
-          >
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-50 text-blue-800 rounded-full text-xs font-bold uppercase tracking-widest pointer-events-none">
+          <div className="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-stone-200 min-w-[600px]">
+            <div className="w-full text-center py-2 bg-blue-50 text-blue-800 rounded-xl text-xs font-bold uppercase tracking-widest mb-8">
               Water Side (Front)
             </div>
 
-            {beds.map((bed) => (
-              <button
-                key={bed.id}
-                onClick={() => (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && onBedSelect(bed)}
-                disabled={bed.status === 'BOOKED'}
-                style={{ left: `${bed.pos_x}%`, top: `${bed.pos_y}%`, position: 'absolute', transform: 'translate(-50%, -50%)' }}
-                className={clsx(
-                  "w-16 h-16 sm:w-20 sm:h-20 border-2 rounded-2xl flex flex-col items-center justify-center shadow-md transition-all duration-300",
-                  getStatusColor(bed.status),
-                  (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && "hover:scale-110 active:scale-95"
-                )}
-              >
-                <span className="font-bold text-sm sm:text-base truncate px-1">{bed.name}</span>
-                {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600">Until {bed.reserved_until}</span>}
-                <span className="text-xs font-medium opacity-80">€{bed.price}</span>
-              </button>
-            ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {beds.map((bed) => (
+                <button
+                  key={bed.id}
+                  onClick={() => (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && onBedSelect(bed)}
+                  disabled={bed.status === 'BOOKED'}
+                  className={clsx(
+                    "aspect-square border-2 rounded-2xl flex flex-col items-center justify-center shadow-sm transition-all duration-300 w-full",
+                    getStatusColor(bed.status),
+                    (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && "hover:scale-105 hover:shadow-md active:scale-95"
+                  )}
+                >
+                  <span className="font-bold text-sm sm:text-base text-center px-2">{bed.name}</span>
+                  {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600 mt-1">Tot {bed.reserved_until}</span>}
+                  <span className="text-xs font-medium opacity-80 mt-1">€{bed.price}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
