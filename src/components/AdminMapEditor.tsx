@@ -129,8 +129,8 @@ export default function AdminMapEditor() {
     } else {
       // Fallback if no venue exists yet
       setAllVenues([]);
-      if (!venue) setVenue({ id: 'fallback', name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
-      setVenueFormData({ name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
+      if (!venue) setVenue({ id: 'fallback', name: 'VIESA Beach Club', location_address: '', map_image_url: '', logo_url: '' });
+      setVenueFormData({ name: 'VIESA Beach Club', location_address: '', map_image_url: '', logo_url: '' });
     }
     
     if (locData) {
@@ -335,7 +335,7 @@ export default function AdminMapEditor() {
               </select>
               <button 
                 onClick={() => {
-                  setVenueFormData({ name: 'Nieuwe Beachclub', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
+                  setVenueFormData({ name: 'Nieuwe Beachclub', location_address: '', map_image_url: '', logo_url: '' });
                   setVenue(null);
                   setShowVenueModal(true);
                 }}
@@ -474,11 +474,20 @@ export default function AdminMapEditor() {
             ref={containerRef}
             onClick={handleMapClick}
             className={clsx(
-              "relative w-full max-w-7xl aspect-[16/9] bg-stone-400 rounded-3xl shadow-2xl overflow-hidden transition-all duration-300",
+              "relative w-full max-w-7xl aspect-[16/9] bg-stone-100 rounded-3xl shadow-2xl overflow-hidden transition-all duration-300",
               movingItem ? "cursor-crosshair ring-8 ring-blue-500/50 scale-[0.98]" : "border-4 border-white"
             )}
-            style={{ backgroundImage: `url('${venue?.map_image_url || '/calabassa-map.jpg'}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+            style={{ 
+              backgroundImage: venue?.map_image_url ? `url('${venue.map_image_url}')` : 'none', 
+              backgroundSize: 'cover', 
+              backgroundPosition: 'center' 
+            }}
           >
+            {!venue?.map_image_url && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="text-stone-400 font-bold text-xl opacity-50 uppercase tracking-widest">No map uploaded</span>
+              </div>
+            )}
             {/* Draw Locations (Zones) */}
             {locations.map((loc) => (
               <div

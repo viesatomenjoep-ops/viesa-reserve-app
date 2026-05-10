@@ -36,7 +36,7 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [allVenues, setAllVenues] = useState<{id: string, name: string}[]>([]);
-  const [venue, setVenue] = useState<{id?: string, name: string, map_image_url: string}>({ name: 'VIESA', map_image_url: '/calabassa-map.jpg' });
+  const [venue, setVenue] = useState<{id?: string, name: string, map_image_url: string}>({ name: 'VIESA Beach Club', map_image_url: '' });
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
   
   // Mobile-first: Default to LIST view. User can toggle to MAP.
@@ -293,9 +293,19 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
         </div>
       ) : (
         // Desktop-Friendly Interactive Map
-        <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 bg-stone-300"
-             style={{ backgroundImage: `url('${venue.map_image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 bg-stone-100"
+             style={{ 
+               backgroundImage: venue.map_image_url ? `url('${venue.map_image_url}')` : 'none', 
+               backgroundSize: 'cover', 
+               backgroundPosition: 'center' 
+             }}>
           
+          {!venue.map_image_url && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-stone-300 font-bold text-xl sm:text-3xl opacity-50 uppercase tracking-widest text-center px-4">Map Coming Soon</span>
+            </div>
+          )}
+
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
 
           {/* Zones */}

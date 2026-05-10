@@ -69,7 +69,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE venues;
 -- Create the Global Venue Settings (Seeding two clubs for the demo)
 INSERT INTO venues (id, name, location_address, map_image_url) VALUES 
   ('00000000-0000-0000-0000-000000000000', 'Cala Bassa Beach Club', 'Ibiza, Spain', '/calabassa-map.jpg'),
-  ('99999999-9999-9999-9999-999999999999', 'Blue Marlin Ibiza', 'Cala Jondal, Ibiza', '/calabassa-map.jpg');
+  ('99999999-9999-9999-9999-999999999999', 'Blue Marlin Ibiza', 'Cala Jondal, Ibiza', '');
 
 -- Create the 5 Main Zones for Cala Bassa
 INSERT INTO locations (id, venue_id, name, sort_order, pos_x, pos_y) VALUES 
