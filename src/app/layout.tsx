@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-stone-50 text-stone-900 min-h-screen selection:bg-emerald-200 selection:text-emerald-900`}
+        className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-black text-stone-100 min-h-screen selection:bg-emerald-500/30 selection:text-emerald-100`}
       >
         <LanguageProvider>
           {children}

@@ -116,10 +116,10 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'AVAILABLE': return 'bg-emerald-50 hover:bg-emerald-100 border-emerald-500 text-emerald-900 shadow-emerald-500/20';
-      case 'PARTIAL': return 'bg-orange-50 hover:bg-orange-100 border-orange-400 text-orange-900 shadow-orange-400/20';
-      case 'BOOKED': return 'bg-stone-200 border-red-400 text-red-900 opacity-60 cursor-not-allowed';
-      default: return 'bg-stone-100 border-stone-300';
+      case 'AVAILABLE': return 'bg-emerald-900/30 hover:bg-emerald-800/40 border-emerald-500/50 text-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.15)]';
+      case 'PARTIAL': return 'bg-orange-900/30 hover:bg-orange-800/40 border-orange-500/50 text-orange-100 shadow-[0_0_15px_rgba(249,115,22,0.15)]';
+      case 'BOOKED': return 'bg-stone-900/50 border-red-900/50 text-red-400 opacity-50 cursor-not-allowed';
+      default: return 'bg-stone-800/50 border-stone-700 text-stone-300';
     }
   };
 
@@ -145,22 +145,22 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Zones
         </button>
 
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 gap-4 relative z-10">
           <div>
-            <h2 className="text-3xl font-serif font-bold text-stone-900">{activeArea.name}</h2>
-            <p className="text-stone-500">Select a bed to continue your reservation.</p>
+            <h2 className="text-3xl font-serif font-bold text-white drop-shadow-md">{activeArea.name}</h2>
+            <p className="text-stone-300">Select a bed to continue your reservation.</p>
           </div>
-          <div className="flex flex-wrap gap-4 text-sm font-medium">
-            <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div> {t('available')}</div>
-            <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-orange-400 mr-2"></div> Partial</div>
-            <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div> Booked</div>
+          <div className="flex flex-wrap gap-4 text-sm font-medium bg-stone-900/50 backdrop-blur-md px-4 py-2 rounded-xl border border-stone-800">
+            <div className="flex items-center text-stone-200"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-2 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div> {t('available')}</div>
+            <div className="flex items-center text-stone-200"><div className="w-3 h-3 rounded-full bg-orange-400 mr-2 shadow-[0_0_8px_rgba(251,146,60,0.8)]"></div> Partial</div>
+            <div className="flex items-center text-stone-200"><div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div> Booked</div>
           </div>
         </div>
 
         {/* Static Grid Container matching Admin */}
-        <div className="overflow-x-auto pb-8">
-          <div className="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-stone-200 min-w-[600px]">
-            <div className="w-full text-center py-2 bg-blue-50 text-blue-800 rounded-xl text-xs font-bold uppercase tracking-widest mb-8">
+        <div className="overflow-x-auto pb-8 relative z-10">
+          <div className="max-w-5xl mx-auto bg-stone-900/40 backdrop-blur-xl p-6 sm:p-10 rounded-3xl shadow-2xl border border-stone-700/50 min-w-[600px]">
+            <div className="w-full text-center py-2 bg-stone-800/80 text-stone-300 border border-stone-700 rounded-xl text-xs font-bold uppercase tracking-widest mb-8 shadow-inner">
               Water Side (Front)
             </div>
 
@@ -171,13 +171,13 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
                   onClick={() => (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && onBedSelect(bed)}
                   disabled={bed.status === 'BOOKED'}
                   className={clsx(
-                    "aspect-square border-2 rounded-2xl flex flex-col items-center justify-center shadow-sm transition-all duration-300 w-full",
+                    "aspect-square border border-stone-700/50 rounded-2xl flex flex-col items-center justify-center shadow-lg transition-all duration-300 w-full backdrop-blur-sm",
                     getStatusColor(bed.status),
-                    (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && "hover:scale-105 hover:shadow-md active:scale-95"
+                    (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && "hover:scale-105 hover:shadow-xl active:scale-95 hover:border-stone-500/50"
                   )}
                 >
                   <span className="font-bold text-sm sm:text-base text-center px-2">{bed.name}</span>
-                  {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600 mt-1">Tot {bed.reserved_until}</span>}
+                  {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-400 mt-1">Tot {bed.reserved_until}</span>}
                   <span className="text-xs font-medium opacity-80 mt-1">€{bed.price}</span>
                 </button>
               ))}
@@ -197,20 +197,20 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       {/* Top Toggle Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900">Select a Location</h2>
-          <p className="text-stone-500 text-sm">Choose your preferred spot at the beach club.</p>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">Select a Location</h2>
+          <p className="text-stone-400 text-sm">Choose your preferred spot at the beach club.</p>
         </div>
 
-        <div className="flex bg-stone-100 p-1 rounded-xl self-stretch sm:self-auto">
+        <div className="flex bg-stone-900/80 backdrop-blur-md p-1 rounded-xl self-stretch sm:self-auto border border-stone-800 shadow-inner">
           <button 
             onClick={() => setViewMode('LIST')}
-            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'LIST' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
+            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'LIST' ? "bg-stone-800 text-white shadow-lg border border-stone-700" : "text-stone-500 hover:text-stone-300")}
           >
             <List className="w-4 h-4 mr-2" /> List View
           </button>
           <button 
             onClick={() => setViewMode('MAP')}
-            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'MAP' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
+            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'MAP' ? "bg-stone-800 text-white shadow-lg border border-stone-700" : "text-stone-500 hover:text-stone-300")}
           >
             <MapIcon className="w-4 h-4 mr-2" /> Map View
           </button>
@@ -224,25 +224,25 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
             const locAreas = areas.filter(a => a.location_id === loc.id);
             if (locAreas.length === 0) return null;
             return (
-              <div key={loc.id} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-100">
-                <h3 className="text-xl font-serif font-bold text-stone-900 mb-4">{loc.name.replace('Zone ', 'Zone ')}</h3>
+              <div key={loc.id} className="bg-stone-900/50 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-800">
+                <h3 className="text-xl font-serif font-bold text-white mb-4">{loc.name.replace('Zone ', 'Zone ')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {locAreas.map(area => (
                     <button
                       key={area.id}
                       onClick={() => setActiveArea(area)}
-                      className="flex items-center justify-between p-4 rounded-2xl border-2 border-stone-100 hover:border-emerald-500 hover:bg-emerald-50 hover:shadow-md transition-all text-left group"
+                      className="flex items-center justify-between p-4 rounded-2xl border-2 border-stone-800 hover:border-emerald-500 hover:bg-emerald-900/20 hover:shadow-md transition-all text-left group"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="p-3 bg-stone-100 rounded-xl group-hover:bg-white transition-colors">
+                        <div className="p-3 bg-stone-800 rounded-xl group-hover:bg-stone-900 transition-colors shadow-inner border border-stone-700">
                           {getAreaIcon(area.type)}
                         </div>
                         <div>
-                          <p className="font-bold text-stone-900">{area.name}</p>
-                          <p className="text-xs text-stone-500 uppercase tracking-wider">{area.type}</p>
+                          <p className="font-bold text-white">{area.name}</p>
+                          <p className="text-xs text-stone-400 uppercase tracking-wider">{area.type}</p>
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-emerald-500 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-stone-500 group-hover:text-emerald-400 transition-colors" />
                     </button>
                   ))}
                 </div>
