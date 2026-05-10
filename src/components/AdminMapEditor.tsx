@@ -53,10 +53,59 @@ export default function AdminMapEditor() {
   const [hasUnsavedMapChanges, setHasUnsavedMapChanges] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const autocompleteInitialized = useRef(false);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Initialize Google Places Autocomplete when Venue Modal opens
+  useEffect(() => {
+    if (!showVenueModal) {
+      autocompleteInitialized.current = false;
+      return;
+    }
+    
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) return;
+
+    const initAutocomplete = () => {
+      if (!addressInputRef.current || autocompleteInitialized.current) return;
+      // @ts-ignore
+      const autocomplete = new window.google.maps.places.Autocomplete(addressInputRef.current);
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (place.formatted_address || place.name) {
+          setVenueFormData(prev => ({ ...prev, location_address: place.formatted_address || place.name }));
+        }
+      });
+      autocompleteInitialized.current = true;
+    };
+
+    // @ts-ignore
+    if (window.google && window.google.maps && window.google.maps.places) {
+      initAutocomplete();
+    } else {
+      // Load script if not present
+      if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.async = true;
+        script.onload = initAutocomplete;
+        document.body.appendChild(script);
+      } else {
+        // Script is loading, poll for it
+        const interval = setInterval(() => {
+          // @ts-ignore
+          if (window.google && window.google.maps && window.google.maps.places) {
+            initAutocomplete();
+            clearInterval(interval);
+          }
+        }, 100);
+      }
+    }
+  }, [showVenueModal]);
 
   const fetchData = async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
@@ -525,7 +574,7 @@ export default function AdminMapEditor() {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-stone-700 mb-1">Locatie / Adres</label>
-                  <input type="text" value={venueFormData.location_address} onChange={(e) => setVenueFormData({...venueFormData, location_address: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. Cala Bassa, Ibiza" />
+                  <input ref={addressInputRef} type="text" value={venueFormData.location_address} onChange={(e) => setVenueFormData({...venueFormData, location_address: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. Cala Bassa, Ibiza" />
                   
                   {/* Magic Google Maps Button */}
                   <button 
