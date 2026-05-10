@@ -95,15 +95,28 @@ export default function AdminMapEditor() {
       return;
     }
 
-    for (const loc of locations) {
-      await supabase.from('locations').update({ pos_x: loc.pos_x, pos_y: loc.pos_y }).eq('id', loc.id);
+    try {
+      const locationPromises = locations.map(loc => 
+        supabase.from('locations').update({ pos_x: loc.pos_x, pos_y: loc.pos_y }).eq('id', loc.id)
+      );
+      const areaPromises = areas.map(area => 
+        supabase.from('areas').update({ pos_x: area.pos_x, pos_y: area.pos_y }).eq('id', area.id)
+      );
+
+      const results = await Promise.all([...locationPromises, ...areaPromises]);
+      
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) {
+        console.error("Save Errors:", errors);
+        alert(`Let op: Er gingen ${errors.length} updates mis. Check je console voor details.`);
+      } else {
+        setHasUnsavedMapChanges(false);
+        alert("Plattegrond bliksemsnel en 100% succesvol opgeslagen in SQL!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Er is een fatale netwerkfout opgetreden bij het opslaan.");
     }
-    for (const area of areas) {
-      await supabase.from('areas').update({ pos_x: area.pos_x, pos_y: area.pos_y }).eq('id', area.id);
-    }
-    
-    setHasUnsavedMapChanges(false);
-    alert("Plattegrond succesvol opgeslagen in SQL!");
   };
 
   // --- CRUD Operations ---
