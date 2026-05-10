@@ -13,6 +13,7 @@ export interface Location {
   pos_x: number;
   pos_y: number;
   sort_order?: number;
+  venue_id?: string;
 }
 
 export interface Area {
@@ -35,6 +36,7 @@ export interface Venue {
 export default function AdminMapEditor() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
+  const [allVenues, setAllVenues] = useState<Venue[]>([]);
   const [venue, setVenue] = useState<Venue | null>(null);
   
   const [activeArea, setActiveArea] = useState<Area | null>(null);
@@ -114,17 +116,20 @@ export default function AdminMapEditor() {
       return;
     }
 
-    const { data: venueData } = await supabase.from('venues').select('*').limit(1).single();
+    const { data: venuesData } = await supabase.from('venues').select('*');
     const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
     const { data: bedData } = await supabase.from('beds').select('id, area_id');
     
-    if (venueData) {
-      setVenue(venueData);
-      setVenueFormData({ name: venueData.name, location_address: venueData.location_address || '', map_image_url: venueData.map_image_url, logo_url: venueData.logo_url || '' });
+    if (venuesData && venuesData.length > 0) {
+      setAllVenues(venuesData);
+      const targetVenue = venue || venuesData[0];
+      if (!venue) setVenue(targetVenue);
+      setVenueFormData({ name: targetVenue.name, location_address: targetVenue.location_address || '', map_image_url: targetVenue.map_image_url, logo_url: targetVenue.logo_url || '' });
     } else {
       // Fallback if no venue exists yet
-      setVenue({ id: 'fallback', name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
+      setAllVenues([]);
+      if (!venue) setVenue({ id: 'fallback', name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
       setVenueFormData({ name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
     }
     
@@ -195,7 +200,7 @@ export default function AdminMapEditor() {
     setLocations([...locations, optimisticLoc]);
     
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      const { data, error } = await supabase.from('locations').insert([{ name: formData.name, pos_x: 50, pos_y: 50 }]).select().single();
+      const { data, error } = await supabase.from('locations').insert([{ venue_id: venue?.id, name: formData.name, pos_x: 50, pos_y: 50 }]).select().single();
       if (error) {
         console.error(error);
         alert("Fout bij aanmaken zone: " + error.message);
@@ -274,7 +279,10 @@ export default function AdminMapEditor() {
           alert("BELANGRIJK: Je hebt de nieuwe schema.sql code nog niet uitgevoerd in Supabase! De 'venues' tabel mist nog. Plak de schema.sql code in je SQL Editor en klik Run.");
           return;
         }
-        if (data) setVenue(data);
+        if (data) {
+          setVenue(data);
+          setAllVenues(prev => [...prev, data]);
+        }
       }
       setVenue(prev => ({ ...prev!, ...payload }));
     } else {
@@ -300,11 +308,37 @@ export default function AdminMapEditor() {
           ) : (
             <Settings2 className="mr-2 text-emerald-600 h-8 w-8" />
           )}
-          <div>
-            <h1 className="text-2xl font-bold text-stone-900 flex items-center">
-              {venue?.name || 'Master Admin Planner'}
-            </h1>
-            <p className="text-stone-500 text-sm mt-1">{venue?.location_address || 'Beheer zones in de lijst, en bepaal posities op de plattegrond.'}</p>
+          <div className="flex flex-col justify-center">
+            <div className="flex items-center gap-2">
+              <select 
+                value={venue?.id || ''} 
+                onChange={(e) => {
+                  const selected = allVenues.find(v => v.id === e.target.value);
+                  if (selected) {
+                    setVenue(selected);
+                    setVenueFormData({ name: selected.name, location_address: selected.location_address || '', map_image_url: selected.map_image_url, logo_url: selected.logo_url || '' });
+                  }
+                }}
+                className="text-2xl font-bold text-stone-900 bg-transparent border-none p-0 pr-6 cursor-pointer focus:ring-0 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%231c1917%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-right hover:text-stone-700 transition-colors"
+                style={{ backgroundPosition: 'right 0 center' }}
+              >
+                {allVenues.map(v => (
+                  <option key={v.id} value={v.id}>{v.name}</option>
+                ))}
+              </select>
+              <button 
+                onClick={() => {
+                  setVenueFormData({ name: 'Nieuwe Beachclub', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
+                  setVenue(null);
+                  setShowVenueModal(true);
+                }}
+                className="text-xs bg-stone-100 hover:bg-stone-200 text-stone-600 px-2 py-1 rounded font-bold transition-colors shadow-sm ml-2"
+                title="Voeg een extra locatie toe"
+              >
+                + Beachclub Toevoegen
+              </button>
+            </div>
+            <p className="text-stone-500 text-sm mt-1">{venue?.location_address || 'Geen adres ingevuld'}</p>
           </div>
         </div>
         
@@ -340,11 +374,11 @@ export default function AdminMapEditor() {
           </div>
 
           <div className="p-4 space-y-6">
-            {locations.length === 0 && (
+            {locations.filter(l => l.venue_id === venue?.id || !l.venue_id).length === 0 && (
               <p className="text-stone-400 text-center py-8 text-sm font-medium">Nog geen zones. Maak eerst een Main Zone aan.</p>
             )}
 
-            {locations.map(loc => (
+            {locations.filter(l => l.venue_id === venue?.id || !l.venue_id).map(loc => (
               <div 
                 key={loc.id} 
                 draggable

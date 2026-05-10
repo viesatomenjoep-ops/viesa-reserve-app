@@ -12,6 +12,8 @@ export interface Location {
   name: string;
   pos_x: number;
   pos_y: number;
+  sort_order?: number;
+  venue_id?: string;
 }
 
 export interface Area {
@@ -82,14 +84,16 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       return;
     }
     
-    const { data: venueData } = await supabase.from('venues').select('name, map_image_url').limit(1).single();
+    const { data: venueData } = await supabase.from('venues').select('id, name, map_image_url').limit(1).single();
     if (venueData) setVenue(venueData);
 
     const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
     if (locData) {
-      locData.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-      setLocations(locData);
+      // Filter by venue_id if it exists, otherwise show all
+      const filteredLocs = locData.filter(l => l.venue_id === venueData?.id || !l.venue_id);
+      filteredLocs.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      setLocations(filteredLocs);
     }
     if (areaData) setAreas(areaData);
   };
