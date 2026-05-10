@@ -511,8 +511,62 @@ export default function AdminMapEditor() {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-stone-700 mb-1">Achtergrond Plattegrond URL</label>
+                  
+                  {/* Cloudinary File Uploader */}
+                  <div className="flex flex-col gap-2 mt-2 mb-3">
+                    <label className="flex items-center justify-center w-full py-3 px-4 border-2 border-dashed border-emerald-300 bg-emerald-50 text-emerald-700 rounded-xl font-bold cursor-pointer hover:bg-emerald-100 transition-colors">
+                      <span className="flex items-center"><Plus className="w-5 h-5 mr-2" /> Upload nieuwe plattegrond (Cloudinary)</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+                          const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+                          if (!cloudName || !uploadPreset) {
+                            alert("Cloudinary is nog niet geconfigureerd! Voeg NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME en NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET toe in Vercel.");
+                            return;
+                          }
+
+                          // Show an optimistic loading alert
+                          alert("Uploaden naar Cloudinary gestart... even geduld.");
+
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          formData.append('upload_preset', uploadPreset);
+
+                          try {
+                            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                              method: 'POST',
+                              body: formData,
+                            });
+                            const data = await res.json();
+                            if (data.secure_url) {
+                              setVenueFormData({ ...venueFormData, map_image_url: data.secure_url });
+                              alert("Upload succesvol!");
+                            } else {
+                              alert("Fout bij uploaden: " + data.error?.message);
+                            }
+                          } catch (err) {
+                            console.error(err);
+                            alert("Netwerkfout bij uploaden.");
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-1">
+                    <hr className="flex-1 border-stone-200" />
+                    <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">OF PLAK EEN LINK</span>
+                    <hr className="flex-1 border-stone-200" />
+                  </div>
+                  
                   <input type="text" value={venueFormData.map_image_url} onChange={(e) => setVenueFormData({...venueFormData, map_image_url: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="https://res.cloudinary.com/..." />
-                  <p className="text-xs text-stone-500 mt-1">Plak hier een directe link naar een afbeelding (Cloudinary of Google Maps image link) om je plattegrond te wijzigen.</p>
                 </div>
                 
                 {venueFormData.map_image_url && (
