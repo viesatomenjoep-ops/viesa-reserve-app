@@ -33,20 +33,31 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const [areas, setAreas] = useState<Area[]>([]);
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   const [beds, setBeds] = useState<Bed[]>([]);
+  const [venue, setVenue] = useState({ name: 'VIESA', map_image_url: '/calabassa-map.jpg' });
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
   
   // Mobile-first: Default to LIST view. User can toggle to MAP.
   const [viewMode, setViewMode] = useState<'LIST' | 'MAP'>('LIST');
 
   useEffect(() => {
-    fetchMapData();
+    fetchData();
+
+    // Set up realtime subscriptions
+    const channel = supabase.channel('schema-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'beds' }, (payload) => {
+        setBeds(current => {
+          if (payload.eventType === 'UPDATE') return current.map(b => b.id === payload.new.id ? payload.new as Bed : b);
+          if (payload.eventType === 'INSERT') return [...current, payload.new as Bed];
+          if (payload.eventType === 'DELETE') return current.filter(b => b.id !== payload.old.id);
+          return current;
+        });
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
-  useEffect(() => {
-    if (activeArea) fetchBedsData(activeArea.id);
-  }, [activeArea]);
-
-  const fetchMapData = async () => {
+  const fetchData = async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       setLocations([
         { id: '1', name: 'Zone 1', pos_x: 15, pos_y: 50 },
@@ -64,6 +75,10 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       ]);
       return;
     }
+    
+    const { data: venueData } = await supabase.from('venues').select('name, map_image_url').limit(1).single();
+    if (venueData) setVenue(venueData);
+
     const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
     if (locData) setLocations(locData);
@@ -232,7 +247,7 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       ) : (
         // Desktop-Friendly Interactive Map
         <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 bg-stone-300"
-             style={{ backgroundImage: "url('/calabassa-map.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+             style={{ backgroundImage: `url('${venue.map_image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
           
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
 

@@ -6,6 +6,16 @@ DROP TABLE IF EXISTS bookings CASCADE;
 DROP TABLE IF EXISTS beds CASCADE;
 DROP TABLE IF EXISTS areas CASCADE;
 DROP TABLE IF EXISTS locations CASCADE;
+DROP TABLE IF EXISTS venues CASCADE;
+
+-- 0. Venues (Global settings for the business)
+CREATE TABLE venues (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(100) NOT NULL DEFAULT 'Viesa Beach Club',
+  location_address VARCHAR(255),
+  map_image_url TEXT DEFAULT '/calabassa-map.jpg',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
 -- 1. Locations (The main 5 zones on the map)
 CREATE TABLE locations (
@@ -45,10 +55,15 @@ CREATE TABLE beds (
 ALTER PUBLICATION supabase_realtime ADD TABLE locations;
 ALTER PUBLICATION supabase_realtime ADD TABLE areas;
 ALTER PUBLICATION supabase_realtime ADD TABLE beds;
+ALTER PUBLICATION supabase_realtime ADD TABLE venues;
 
 -- ==============================================================================
 -- INITIAL SEED DATA
 -- ==============================================================================
+
+-- Create the Global Venue Settings
+INSERT INTO venues (id, name, location_address, map_image_url) VALUES 
+  ('00000000-0000-0000-0000-000000000000', 'Cala Bassa Beach Club', 'Ibiza, Spain', '/calabassa-map.jpg');
 
 -- Create the 5 Main Zones
 INSERT INTO locations (id, name, pos_x, pos_y) VALUES 

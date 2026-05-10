@@ -23,16 +23,26 @@ export interface Area {
   pos_y: number;
 }
 
+export interface Venue {
+  id: string;
+  name: string;
+  location_address: string;
+  map_image_url: string;
+}
+
 export default function AdminMapEditor() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
+  const [venue, setVenue] = useState<Venue | null>(null);
   
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   
   // Modals for Create/Edit
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAreaModal, setShowAreaModal] = useState(false);
+  const [showVenueModal, setShowVenueModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', type: 'BEDS' });
+  const [venueFormData, setVenueFormData] = useState({ name: '', location_address: '', map_image_url: '' });
   const [modalTargetLocationId, setModalTargetLocationId] = useState<string | null>(null);
 
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
@@ -50,6 +60,9 @@ export default function AdminMapEditor() {
 
   const fetchData = async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      setVenue({
+        id: '0', name: 'VIESA Beach Club', location_address: 'Ibiza', map_image_url: '/calabassa-map.jpg'
+      });
       setLocations([
         { id: '1', name: 'Zone 1', pos_x: 15, pos_y: 50 },
         { id: '2', name: 'Zone 2', pos_x: 30, pos_y: 25 }
@@ -62,8 +75,19 @@ export default function AdminMapEditor() {
       return;
     }
 
+    const { data: venueData } = await supabase.from('venues').select('*').limit(1).single();
     const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
+    
+    if (venueData) {
+      setVenue(venueData);
+      setVenueFormData({ name: venueData.name, location_address: venueData.location_address || '', map_image_url: venueData.map_image_url });
+    } else {
+      // Fallback if no venue exists yet
+      setVenue({ id: 'fallback', name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg' });
+      setVenueFormData({ name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg' });
+    }
+    
     if (locData) setLocations(locData);
     if (areaData) setAreas(areaData);
     setHasUnsavedMapChanges(false);
@@ -171,6 +195,28 @@ export default function AdminMapEditor() {
     if (process.env.NEXT_PUBLIC_SUPABASE_URL) await supabase.from('areas').delete().eq('id', id);
   };
 
+  const handleSaveVenue = async () => {
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      if (venue?.id !== 'fallback') {
+        await supabase.from('venues').update({ 
+          name: venueFormData.name, 
+          location_address: venueFormData.location_address, 
+          map_image_url: venueFormData.map_image_url 
+        }).eq('id', venue!.id);
+      } else {
+        await supabase.from('venues').insert([{ 
+          name: venueFormData.name, 
+          location_address: venueFormData.location_address, 
+          map_image_url: venueFormData.map_image_url 
+        }]);
+      }
+      fetchData();
+    } else {
+      setVenue({ ...venue!, ...venueFormData });
+    }
+    setShowVenueModal(false);
+  };
+
   // If Bed Editor is open, show it
   if (activeArea) {
     return <AdminBedEditor area={activeArea} onBack={() => setActiveArea(null)} onDeleteArea={() => { handleDeleteArea(activeArea.id); setActiveArea(null); }} />;
@@ -183,12 +229,18 @@ export default function AdminMapEditor() {
       <div className="bg-white border-b border-stone-200 p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm z-20 shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-stone-900 flex items-center">
-            <Settings2 className="mr-2 text-emerald-600" /> Master Admin Planner
+            <Settings2 className="mr-2 text-emerald-600" /> {venue?.name || 'Master Admin Planner'}
           </h1>
-          <p className="text-stone-500 text-sm mt-1">Beheer zones in de lijst, en bepaal posities op de plattegrond.</p>
+          <p className="text-stone-500 text-sm mt-1">{venue?.location_address || 'Beheer zones in de lijst, en bepaal posities op de plattegrond.'}</p>
         </div>
         
         <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setShowVenueModal(true)}
+            className="flex items-center px-4 py-3 rounded-xl font-bold bg-stone-100 text-stone-700 hover:bg-stone-200 transition-all shadow-sm border-2 border-transparent"
+          >
+            Venue Settings
+          </button>
           <button 
             onClick={saveMapPositions}
             disabled={!hasUnsavedMapChanges}
@@ -299,7 +351,7 @@ export default function AdminMapEditor() {
               "relative w-full max-w-7xl aspect-[16/9] bg-stone-400 rounded-3xl shadow-2xl overflow-hidden transition-all duration-300",
               movingItem ? "cursor-crosshair ring-8 ring-blue-500/50 scale-[0.98]" : "border-4 border-white"
             )}
-            style={{ backgroundImage: "url('/calabassa-map.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+            style={{ backgroundImage: `url('${venue?.map_image_url || '/calabassa-map.jpg'}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
           >
             {/* Draw Locations (Zones) */}
             {locations.map((loc) => (
@@ -437,6 +489,47 @@ export default function AdminMapEditor() {
           </div>
         </div>
       )}
+
+      {/* Venue Settings Modal */}
+      <AnimatePresence>
+        {showVenueModal && (
+          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold">Business Settings</h3>
+                <button onClick={() => setShowVenueModal(false)} className="text-stone-400 hover:text-stone-900"><X /></button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Bedrijf / Hotel Naam</label>
+                  <input type="text" value={venueFormData.name} onChange={(e) => setVenueFormData({...venueFormData, name: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. Viesa Beach Club" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Locatie / Adres</label>
+                  <input type="text" value={venueFormData.location_address} onChange={(e) => setVenueFormData({...venueFormData, location_address: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. Ibiza, Spain" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Achtergrond Plattegrond URL</label>
+                  <input type="text" value={venueFormData.map_image_url} onChange={(e) => setVenueFormData({...venueFormData, map_image_url: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="https://res.cloudinary.com/..." />
+                  <p className="text-xs text-stone-500 mt-1">Plak hier een directe link naar een afbeelding (Cloudinary of Google Maps image link) om je plattegrond te wijzigen.</p>
+                </div>
+                
+                {venueFormData.map_image_url && (
+                  <div className="mt-4 border border-stone-200 rounded-lg p-2 bg-stone-50">
+                    <p className="text-xs font-bold text-stone-500 mb-2 uppercase">Live Preview</p>
+                    <div className="w-full h-32 rounded-md bg-stone-200" style={{ backgroundImage: `url('${venueFormData.map_image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  </div>
+                )}
+              </div>
+              
+              <button onClick={handleSaveVenue} className="w-full mt-6 py-3 bg-stone-900 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors">
+                Save Business Settings
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
