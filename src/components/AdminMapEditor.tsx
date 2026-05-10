@@ -542,30 +542,29 @@ export default function AdminMapEditor() {
                   <label className="block text-sm font-bold text-stone-700 mb-1">Bedrijfslogo (Bovenaan Admin)</label>
                   <div className="flex flex-col gap-2 mt-2 mb-3">
                     <label className="flex items-center justify-center w-full py-3 px-4 border-2 border-dashed border-stone-300 bg-stone-50 text-stone-600 rounded-xl font-bold cursor-pointer hover:bg-stone-100 transition-colors">
-                      <span className="flex items-center"><Plus className="w-5 h-5 mr-2" /> Upload Logo (Cloudinary)</span>
-                      <input 
-                        type="file" accept="image/*" className="hidden" 
-                        onChange={async (e) => {
+                      <span className="flex items-center"><Plus className="w-5 h-5 mr-2" /> Upload Logo (Vanaf Computer)</span>
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-                          const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-                          if (!cloudName || !uploadPreset) {
-                            alert("Cloudinary is nog niet geconfigureerd! Voeg NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME en NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET toe in Vercel.");
+                          
+                          // Check if file is an image and reasonable size for Base64 (e.g., < 2MB)
+                          if (!file.type.startsWith('image/')) {
+                            alert("Selecteer a.u.b. een geldige afbeelding.");
                             return;
                           }
-                          alert("Logo uploaden naar Cloudinary gestart... even geduld.");
-                          const formData = new FormData();
-                          formData.append('file', file);
-                          formData.append('upload_preset', uploadPreset);
-                          try {
-                            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: formData });
-                            const data = await res.json();
-                            if (data.secure_url) {
-                              setVenueFormData({ ...venueFormData, logo_url: data.secure_url });
-                              alert("Logo succesvol geüpload!");
-                            } else alert("Fout bij uploaden: " + data.error?.message);
-                          } catch (err) { alert("Netwerkfout bij uploaden."); }
+                          if (file.size > 2 * 1024 * 1024) {
+                            alert("Logo is te groot! Zorg dat de afbeelding kleiner is dan 2MB.");
+                            return;
+                          }
+
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            if (event.target?.result) {
+                              setVenueFormData({ ...venueFormData, logo_url: event.target.result as string });
+                            }
+                          };
+                          reader.readAsDataURL(file);
                         }}
                       />
                     </label>
