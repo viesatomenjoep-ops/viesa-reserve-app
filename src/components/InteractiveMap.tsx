@@ -4,77 +4,64 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 import { clsx } from 'clsx';
-import { Info, Umbrella } from 'lucide-react';
-
-export interface Zone {
-  id: string;
-  name: string;
-}
+import { Info } from 'lucide-react';
 
 export interface Bed {
   id: string;
-  zone_id: string;
   name: string;
-  item_type: 'sunbed' | 'cabana' | 'restaurant_table' | 'lounge';
+  zone: string;
   price: number;
   min_spend: number;
   status: 'AVAILABLE' | 'RESERVED' | 'BOOKED';
-  x_position: number;
-  y_position: number;
-  width: number;
-  height: number;
-  rotation: number;
+  pos_x: number; 
+  pos_y: number; 
 }
 
-// Logical Fallback Data (In case Supabase is not connected yet)
-const fallbackZones: Zone[] = [
-  { id: '1', name: 'Zone 1: Front Row' },
-  { id: '2', name: 'Zone 2: Second Row' },
-  { id: '3', name: 'VIP Cabanas' },
-  { id: '4', name: 'Restaurant' }
-];
-
-const fallbackBeds: Bed[] = [
-  { id: '1', zone_id: '1', name: '1A', item_type: 'sunbed', price: 500, min_spend: 1000, status: 'AVAILABLE', x_position: 20, y_position: 85, width: 8, height: 12, rotation: 0 },
-  { id: '2', zone_id: '1', name: '1B', item_type: 'sunbed', price: 500, min_spend: 1000, status: 'AVAILABLE', x_position: 40, y_position: 85, width: 8, height: 12, rotation: 0 },
-  { id: '3', zone_id: '1', name: '1C', item_type: 'sunbed', price: 500, min_spend: 1000, status: 'AVAILABLE', x_position: 60, y_position: 85, width: 8, height: 12, rotation: 0 },
-  { id: '4', zone_id: '1', name: '1D', item_type: 'sunbed', price: 500, min_spend: 1000, status: 'BOOKED', x_position: 80, y_position: 85, width: 8, height: 12, rotation: 0 },
-  { id: '5', zone_id: '2', name: '2A', item_type: 'sunbed', price: 300, min_spend: 600, status: 'AVAILABLE', x_position: 30, y_position: 65, width: 8, height: 12, rotation: 0 },
-  { id: '6', zone_id: '2', name: '2B', item_type: 'sunbed', price: 300, min_spend: 600, status: 'RESERVED', x_position: 50, y_position: 65, width: 8, height: 12, rotation: 0 },
-  { id: '7', zone_id: '2', name: '2C', item_type: 'sunbed', price: 300, min_spend: 600, status: 'AVAILABLE', x_position: 70, y_position: 65, width: 8, height: 12, rotation: 0 },
-  { id: '8', zone_id: '3', name: 'VIP-1', item_type: 'cabana', price: 1500, min_spend: 3000, status: 'AVAILABLE', x_position: 15, y_position: 30, width: 15, height: 15, rotation: 0 },
-  { id: '9', zone_id: '3', name: 'VIP-2', item_type: 'cabana', price: 1500, min_spend: 3000, status: 'AVAILABLE', x_position: 85, y_position: 30, width: 15, height: 15, rotation: 0 },
-  { id: '10', zone_id: '4', name: 'T1', item_type: 'restaurant_table', price: 100, min_spend: 250, status: 'AVAILABLE', x_position: 40, y_position: 15, width: 8, height: 8, rotation: 0 },
-  { id: '11', zone_id: '4', name: 'T2', item_type: 'restaurant_table', price: 100, min_spend: 250, status: 'AVAILABLE', x_position: 50, y_position: 15, width: 8, height: 8, rotation: 0 },
-  { id: '12', zone_id: '4', name: 'T3', item_type: 'restaurant_table', price: 100, min_spend: 250, status: 'AVAILABLE', x_position: 60, y_position: 15, width: 8, height: 8, rotation: 0 },
-];
-
-export interface InteractiveMapProps {
-  onBedSelect: (bed: Bed & { zone_name?: string }) => void;
+interface InteractiveMapProps {
+  onBedSelect: (bed: Bed) => void;
 }
 
 export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
-  const [beds, setBeds] = useState<Bed[]>(fallbackBeds);
-  const [zones, setZones] = useState<Zone[]>(fallbackZones);
+  const [beds, setBeds] = useState<Bed[]>([]);
   const { t } = useLanguage();
 
   useEffect(() => {
-    const isConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co';
-    
-    if (isConfigured) {
-      const fetchData = async () => {
-        const [zonesResponse, bedsResponse] = await Promise.all([
-          supabase.from('zones').select('*'),
-          supabase.from('beds').select('*')
+    // Fetch initial data
+    const fetchBeds = async () => {
+      // If we don't have real keys, this will fail gracefully or we can mock it
+      if (process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co' || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        // Load fallback mock data matching our new schema
+        setBeds([
+          { id: '1', name: '101', zone: 'Zone 1: Front Row', price: 500, min_spend: 1000, status: 'AVAILABLE', pos_x: 20, pos_y: 85 },
+          { id: '2', name: '102', zone: 'Zone 1: Front Row', price: 500, min_spend: 1000, status: 'AVAILABLE', pos_x: 40, pos_y: 85 },
+          { id: '3', name: '103', zone: 'Zone 1: Front Row', price: 500, min_spend: 1000, status: 'RESERVED', pos_x: 60, pos_y: 85 },
+          { id: '4', name: '104', zone: 'Zone 1: Front Row', price: 500, min_spend: 1000, status: 'AVAILABLE', pos_x: 80, pos_y: 85 },
+          { id: '5', name: '201', zone: 'Zone 2: Second Row', price: 400, min_spend: 800, status: 'AVAILABLE', pos_x: 25, pos_y: 70 },
+          { id: '6', name: '202', zone: 'Zone 2: Second Row', price: 400, min_spend: 800, status: 'BOOKED', pos_x: 45, pos_y: 70 },
+          { id: '7', name: '203', zone: 'Zone 2: Second Row', price: 400, min_spend: 800, status: 'AVAILABLE', pos_x: 65, pos_y: 70 },
+          { id: '8', name: 'V1', zone: 'Zone 3: VIP Deck', price: 1500, min_spend: 3000, status: 'AVAILABLE', pos_x: 35, pos_y: 50 },
+          { id: '9', name: 'V2', zone: 'Zone 3: VIP Deck', price: 1500, min_spend: 3000, status: 'AVAILABLE', pos_x: 65, pos_y: 50 },
+          { id: '10', name: 'C1', zone: 'Zone 4: Cabanas', price: 2000, min_spend: 5000, status: 'AVAILABLE', pos_x: 10, pos_y: 40 },
+          { id: '11', name: 'C2', zone: 'Zone 4: Cabanas', price: 2000, min_spend: 5000, status: 'AVAILABLE', pos_x: 90, pos_y: 40 },
+          { id: '12', name: 'P1', zone: 'Zone 5: Poolside', price: 600, min_spend: 1200, status: 'AVAILABLE', pos_x: 30, pos_y: 30 },
+          { id: '13', name: 'P2', zone: 'Zone 5: Poolside', price: 600, min_spend: 1200, status: 'AVAILABLE', pos_x: 50, pos_y: 30 },
+          { id: '14', name: 'P3', zone: 'Zone 5: Poolside', price: 600, min_spend: 1200, status: 'RESERVED', pos_x: 70, pos_y: 30 },
+          { id: '15', name: 'T1', zone: 'Restaurant', price: 0, min_spend: 500, status: 'AVAILABLE', pos_x: 30, pos_y: 10 },
+          { id: '16', name: 'T2', zone: 'Restaurant', price: 0, min_spend: 500, status: 'AVAILABLE', pos_x: 50, pos_y: 10 },
+          { id: '17', name: 'T3', zone: 'Restaurant', price: 0, min_spend: 500, status: 'AVAILABLE', pos_x: 70, pos_y: 10 },
         ]);
-        
-        if (zonesResponse.data) setZones(zonesResponse.data);
-        if (bedsResponse.data) setBeds(bedsResponse.data);
-      };
+        return;
+      }
 
-      fetchData();
+      const { data, error } = await supabase.from('beds').select('*');
+      if (data && !error) {
+        setBeds(data as Bed[]);
+      }
+    };
+    
+    fetchBeds();
 
-      // Subscribe to real-time changes
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co') {
       const channel = supabase
         .channel('schema-db-changes')
         .on(
@@ -98,84 +85,91 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
 
   const handleBedClick = (bed: Bed) => {
     if (bed.status === 'AVAILABLE') {
-      const zoneName = zones.find(z => z.id === bed.zone_id)?.name || 'Unknown Zone';
-      onBedSelect({ ...bed, zone_name: zoneName });
+      onBedSelect(bed);
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'AVAILABLE': return 'bg-emerald-500/90 hover:bg-emerald-400 border-emerald-600 shadow-emerald-500/30';
-      case 'RESERVED': return 'bg-orange-400/90 border-orange-500 opacity-80 cursor-not-allowed';
-      case 'BOOKED': return 'bg-rose-500/90 border-rose-600 opacity-80 cursor-not-allowed';
-      default: return 'bg-stone-300/90';
+      case 'AVAILABLE': return 'bg-white/80 hover:bg-white border-emerald-500 text-emerald-900 shadow-emerald-500/20';
+      case 'RESERVED': return 'bg-orange-100/90 border-orange-400 text-orange-900 opacity-80 cursor-not-allowed';
+      case 'BOOKED': return 'bg-stone-200/90 border-stone-400 text-stone-500 opacity-60 cursor-not-allowed';
+      default: return 'bg-stone-100/80 border-stone-300';
     }
   };
 
-  const getItemShape = (type: string) => {
-    switch (type) {
-      case 'cabana': return 'rounded-sm';
-      case 'restaurant_table': return 'rounded-full';
-      case 'sunbed':
-      default: return 'rounded-xl sm:rounded-2xl';
+  const getStatusIndicator = (status: string) => {
+    switch (status) {
+      case 'AVAILABLE': return 'bg-emerald-500';
+      case 'RESERVED': return 'bg-orange-400';
+      case 'BOOKED': return 'bg-stone-400';
+      default: return 'bg-stone-300';
     }
   };
 
   return (
     <div className="w-full max-w-5xl mx-auto my-8 relative">
-      <div className="flex justify-center space-x-6 mb-6 text-sm">
-        <div className="flex items-center"><div className="w-4 h-4 rounded-full bg-emerald-500 mr-2"></div> {t('available')}</div>
-        <div className="flex items-center"><div className="w-4 h-4 rounded-full bg-orange-400 mr-2"></div> {t('reserved')}</div>
-        <div className="flex items-center"><div className="w-4 h-4 rounded-full bg-rose-500 mr-2"></div> {t('booked')}</div>
+      <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm font-medium">
+        <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div> {t('available')}</div>
+        <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm"><div className="w-3 h-3 rounded-full bg-orange-400 mr-2"></div> {t('reserved')}</div>
+        <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm"><div className="w-3 h-3 rounded-full bg-stone-400 mr-2"></div> {t('booked')}</div>
       </div>
 
-      <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+      <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/10] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50">
         
-        {/* Beautiful, light, subtle beach background via CSS overlay + Unsplash image */}
+        {/* Subtle Beach Background Layer */}
         <div 
-          className="absolute inset-0 z-0 opacity-40 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2000')" }}
-        />
-        
-        {/* Sand to Water Gradient Overlay to make it very light and functional */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-t from-stone-100/90 via-stone-50/70 to-blue-50/80 pointer-events-none" />
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to bottom, #f3eee6 0%, #e6dfd1 30%, #d8cfbe 70%, #90b8d4 100%)',
+          }}
+        >
+          {/* Decorative Waves Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 h-1/3" style={{
+            background: 'radial-gradient(ellipse at top, transparent 50%, rgba(255,255,255,0.3) 100%)',
+            borderTopLeftRadius: '50% 20%',
+            borderTopRightRadius: '50% 20%',
+          }}></div>
+        </div>
 
-        {/* Decorative elements representing the beach/water */}
-        <div className="absolute top-4 left-4 z-10 text-stone-500 font-serif italic text-xl pointer-events-none drop-shadow-md">VIESA Club</div>
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-stone-400 font-serif uppercase tracking-widest text-sm pointer-events-none">Sea / Ocean</div>
+        {/* Labels for Zones (Background) */}
+        <div className="absolute top-[8%] left-1/2 -translate-x-1/2 text-stone-400/50 font-serif text-2xl sm:text-4xl pointer-events-none font-bold uppercase tracking-widest z-0">
+          Restaurant
+        </div>
+        <div className="absolute top-[28%] left-1/2 -translate-x-1/2 text-stone-400/50 font-serif text-2xl sm:text-4xl pointer-events-none font-bold uppercase tracking-widest z-0">
+          Pool Area
+        </div>
+        <div className="absolute bottom-[2%] left-1/2 -translate-x-1/2 text-blue-100/50 font-serif text-2xl sm:text-4xl pointer-events-none font-bold uppercase tracking-widest z-0">
+          Sea Front
+        </div>
 
         {/* The Map grid/beds */}
-        <div className="absolute inset-0 z-10 p-4">
-          {beds.map((bed) => (
-            <button
-              key={bed.id}
-              onClick={() => handleBedClick(bed)}
-              disabled={bed.status !== 'AVAILABLE'}
-              style={{ 
-                left: `${bed.x_position}%`, 
-                top: `${bed.y_position}%`,
-                width: `${bed.width}%`,
-                height: `${bed.height}%`,
-                transform: `translate(-50%, -50%) rotate(${bed.rotation}deg)`
-              }}
-              className={clsx(
-                "absolute flex flex-col items-center justify-center transition-all duration-300 shadow-lg border-2 backdrop-blur-md group",
-                getStatusColor(bed.status),
-                getItemShape(bed.item_type),
-                bed.status === 'AVAILABLE' && "hover:scale-110 active:scale-95 hover:z-20 hover:shadow-xl"
-              )}
-              aria-label={`Bed ${bed.name} - ${bed.status}`}
-            >
-              {bed.item_type === 'cabana' && <Umbrella className="w-4 h-4 sm:w-6 sm:h-6 text-white mb-1 opacity-80" />}
-              <span className="text-white font-bold text-xs sm:text-lg drop-shadow-md">{bed.name}</span>
-            </button>
-          ))}
-        </div>
+        {beds.map((bed) => (
+          <button
+            key={bed.id}
+            onClick={() => handleBedClick(bed)}
+            disabled={bed.status !== 'AVAILABLE'}
+            style={{ left: `${bed.pos_x}%`, top: `${bed.pos_y}%` }}
+            className={clsx(
+              "absolute transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center transition-all duration-300 shadow-lg border-2 backdrop-blur-md z-10 group",
+              getStatusColor(bed.status),
+              bed.status === 'AVAILABLE' && "hover:scale-110 active:scale-95"
+            )}
+            title={`${bed.name} - ${bed.zone}`}
+            aria-label={`Bed ${bed.name} - ${bed.status}`}
+          >
+            {/* Status dot indicator */}
+            <div className={clsx("absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white", getStatusIndicator(bed.status))} />
+            
+            <span className="font-bold text-sm sm:text-base md:text-xl drop-shadow-sm">{bed.name}</span>
+            <span className="text-[0.6rem] sm:text-xs font-medium opacity-70 truncate w-full px-1">{bed.zone.split(':')[0]}</span>
+          </button>
+        ))}
       </div>
       
-      <div className="mt-6 flex items-start text-stone-500 text-sm bg-stone-50 p-4 rounded-xl border border-stone-100">
-        <Info className="w-5 h-5 mr-3 flex-shrink-0 text-stone-400" />
-        <p>Interact with the floorplan to select your preferred location. Green beds are instantly available for booking. The layout is fully customizable from the database.</p>
+      <div className="mt-6 flex items-start text-stone-600 text-sm bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
+        <Info className="w-5 h-5 mr-3 flex-shrink-0 text-stone-400 mt-0.5" />
+        <p>Interact with the floorplan to select your preferred location. The layout dynamically loads from our database, allowing the management to fully customize zones, coordinates, and pricing in real-time.</p>
       </div>
     </div>
   );
