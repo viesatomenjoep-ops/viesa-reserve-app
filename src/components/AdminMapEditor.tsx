@@ -163,14 +163,13 @@ export default function AdminMapEditor() {
               }}
               style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
               className={clsx(
-                "w-16 h-16 rounded-full flex flex-col items-center justify-center shadow-2xl cursor-grab active:cursor-grabbing border-4 transition-colors",
+                "w-16 h-16 rounded-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-all",
                 selectedLocation?.id === loc.id 
-                  ? "bg-emerald-500 border-white text-white z-30 scale-110" 
-                  : "bg-white/90 border-stone-800 text-stone-900 z-20 hover:bg-white"
+                  ? "bg-emerald-500/30 border-4 border-emerald-500 z-30 scale-110" 
+                  : "bg-transparent border-2 border-dashed border-stone-800/50 z-20 hover:bg-white/20"
               )}
             >
-              <span className="font-serif text-2xl font-bold">{loc.name.replace('Zone ', '')}</span>
-              <Move className="w-3 h-3 opacity-50 absolute bottom-1" />
+              <Move className="w-4 h-4 opacity-0 hover:opacity-100 absolute" />
             </motion.div>
           ))}
 

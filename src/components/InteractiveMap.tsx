@@ -246,13 +246,13 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
               onMouseLeave={() => setHoveredLocation(null)}
               style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%` }}
               className={clsx(
-                "absolute -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex flex-col items-center justify-center shadow-lg transition-all duration-300 border-4 cursor-default",
+                "absolute -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full flex flex-col items-center justify-center transition-all duration-300 cursor-pointer",
                 hoveredLocation === loc.id || areas.some(a => a.location_id === loc.id && a.id === hoveredLocation)
-                  ? "bg-stone-900 border-white text-white z-20 scale-110" 
-                  : "bg-white/90 border-stone-800 text-stone-900 z-10"
+                  ? "bg-emerald-500/20 border-4 border-emerald-500/50 z-20 scale-110" 
+                  : "bg-transparent z-10"
               )}
             >
-              <span className="font-serif text-xl font-bold">{loc.name.replace('Zone ', '')}</span>
+              {/* Invisible hotspot for the pre-drawn circles on the map */}
             </div>
           ))}
 
