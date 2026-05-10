@@ -28,6 +28,9 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
   const [beds, setBeds] = useState<Bed[]>([]);
   const [editingBed, setEditingBed] = useState<Bed | null>(null);
 
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkData, setBulkData] = useState({ prefix: 'Row 1 - ', count: 5, price: 100, min_spend: 250 });
+
   useEffect(() => {
     fetchBeds();
   }, [area.id]);
@@ -38,9 +41,6 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
         { id: 'b1', area_id: area.id, name: 'Row 1 - A', price: 500, min_spend: 1000, status: 'BOOKED', pos_x: 0, pos_y: 0 },
         { id: 'b2', area_id: area.id, name: 'Row 1 - B', price: 500, min_spend: 1000, status: 'BOOKED', pos_x: 0, pos_y: 0 },
         { id: 'b3', area_id: area.id, name: 'Row 1 - C', price: 500, min_spend: 1000, status: 'AVAILABLE', pos_x: 0, pos_y: 0 },
-        { id: 'b4', area_id: area.id, name: 'Row 2 - A', price: 200, min_spend: 500, status: 'PARTIAL', reserved_until: '14:30', pos_x: 0, pos_y: 0 },
-        { id: 'b5', area_id: area.id, name: 'Row 2 - B', price: 200, min_spend: 500, status: 'AVAILABLE', pos_x: 0, pos_y: 0 },
-        { id: 'b6', area_id: area.id, name: 'Row 2 - C', price: 200, min_spend: 500, status: 'PARTIAL', reserved_until: '13:00', pos_x: 0, pos_y: 0 },
       ]);
       return;
     }
@@ -67,6 +67,27 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
       const { data } = await supabase.from('beds').insert([newBed]).select().single();
       if (data) fetchBeds(); 
     }
+  };
+
+  const handleBulkCreate = async () => {
+    const newBeds: Omit<Bed, 'id'>[] = Array.from({ length: bulkData.count }).map((_, i) => ({
+      area_id: area.id,
+      name: `${bulkData.prefix}${i + 1}`,
+      price: bulkData.price,
+      min_spend: bulkData.min_spend,
+      status: 'AVAILABLE',
+      pos_x: 0,
+      pos_y: 0
+    }));
+
+    // Optimistic UI
+    setBeds([...beds, ...newBeds.map(b => ({ ...b, id: Math.random().toString() }))]);
+
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      await supabase.from('beds').insert(newBeds);
+      fetchBeds(); 
+    }
+    setShowBulkModal(false);
   };
 
   const saveBedDetails = async () => {
@@ -118,11 +139,19 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
         </div>
         
         <div className="flex gap-4 items-center">
-          <div className="flex gap-3 text-xs font-bold mr-4">
+          <div className="hidden sm:flex gap-3 text-xs font-bold mr-4">
              <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-1" /> Vrij</div>
              <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-orange-400 mr-1" /> Tot tijdstip</div>
              <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-red-500 mr-1" /> Bezet (Hele dag)</div>
           </div>
+          
+          <button 
+            onClick={() => setShowBulkModal(true)}
+            className="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold transition-colors shadow-sm"
+          >
+            Bulk Create
+          </button>
+          
           <button 
             onClick={handleAddBed}
             className="flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors shadow-sm"
@@ -275,6 +304,58 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
                 Save
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Create Modal */}
+      {showBulkModal && (
+        <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">Bulk Create Beds</h3>
+              <button onClick={() => setShowBulkModal(false)} className="text-stone-400 hover:text-stone-900"><X /></button>
+            </div>
+            <p className="text-sm text-stone-500 mb-4">Instantly generate multiple beds. E.g. "Row 3 - " with count 10 creates 10 beds named Row 3 - 1 to 10.</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-1">Name Prefix</label>
+                <input 
+                  type="text" 
+                  value={bulkData.prefix} 
+                  onChange={(e) => setBulkData({...bulkData, prefix: e.target.value})}
+                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-1">Number of Beds to Create</label>
+                <input 
+                  type="number" 
+                  value={bulkData.count} 
+                  onChange={(e) => setBulkData({...bulkData, count: parseInt(e.target.value)})}
+                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  min="1" max="100"
+                />
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Price (€)</label>
+                  <input type="number" value={bulkData.price} onChange={(e) => setBulkData({...bulkData, price: parseFloat(e.target.value)})} className="w-full p-2 border border-stone-300 rounded-lg" />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Min Spend (€)</label>
+                  <input type="number" value={bulkData.min_spend} onChange={(e) => setBulkData({...bulkData, min_spend: parseFloat(e.target.value)})} className="w-full p-2 border border-stone-300 rounded-lg" />
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={handleBulkCreate}
+              className="w-full mt-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors"
+            >
+              Generate {bulkData.count} Beds
+            </button>
           </div>
         </div>
       )}

@@ -40,6 +40,7 @@ export default function AdminMapEditor() {
   const [editingArea, setEditingArea] = useState<Area | null>(null);
 
   const [isMapLocked, setIsMapLocked] = useState(true);
+  const [movingItem, setMovingItem] = useState<{ id: string, type: 'LOCATION' | 'AREA' } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -72,23 +73,26 @@ export default function AdminMapEditor() {
     if (areaData) setAreas(areaData);
   };
 
-  const handleDragEnd = async (id: string, type: 'LOCATION' | 'AREA', info: any) => {
-    if (isMapLocked || !containerRef.current) return;
+  const handleMapClick = async (e: React.MouseEvent) => {
+    if (isMapLocked || !movingItem || !containerRef.current) return;
+    
     const rect = containerRef.current.getBoundingClientRect();
-    const xPct = Math.max(0, Math.min(100, ((info.point.x - rect.left) / rect.width) * 100));
-    const yPct = Math.max(0, Math.min(100, ((info.point.y - rect.top) / rect.height) * 100));
+    const xPct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    const yPct = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
 
-    if (type === 'LOCATION') {
-      setLocations(prev => prev.map(loc => loc.id === id ? { ...loc, pos_x: xPct, pos_y: yPct } : loc));
+    if (movingItem.type === 'LOCATION') {
+      setLocations(prev => prev.map(loc => loc.id === movingItem.id ? { ...loc, pos_x: xPct, pos_y: yPct } : loc));
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-        await supabase.from('locations').update({ pos_x: xPct, pos_y: yPct }).eq('id', id);
+        await supabase.from('locations').update({ pos_x: xPct, pos_y: yPct }).eq('id', movingItem.id);
       }
     } else {
-      setAreas(prev => prev.map(area => area.id === id ? { ...area, pos_x: xPct, pos_y: yPct } : area));
+      setAreas(prev => prev.map(area => area.id === movingItem.id ? { ...area, pos_x: xPct, pos_y: yPct } : area));
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-        await supabase.from('areas').update({ pos_x: xPct, pos_y: yPct }).eq('id', id);
+        await supabase.from('areas').update({ pos_x: xPct, pos_y: yPct }).eq('id', movingItem.id);
       }
     }
+    
+    setMovingItem(null);
   };
 
   const handleDeleteLocation = async (id: string) => {
@@ -172,21 +176,21 @@ export default function AdminMapEditor() {
         
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => setIsMapLocked(!isMapLocked)}
+            onClick={() => { setIsMapLocked(!isMapLocked); setMovingItem(null); }}
             className={clsx("flex items-center px-4 py-2 rounded-lg font-bold text-sm transition-colors border-2", isMapLocked ? "bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200" : "bg-red-50 text-red-600 border-red-300 animate-pulse")}
           >
-            {isMapLocked ? "Map is Locked (Safe)" : "Unlock Mode: You can drag items"}
+            {isMapLocked ? "Map is Locked (Safe)" : "Unlock Mode: Click item to move"}
           </button>
 
           <div className="flex bg-stone-100 p-1 rounded-xl">
             <button 
-              onClick={() => { setEditMode('LOCATIONS'); setSelectedLocation(null); }}
+              onClick={() => { setEditMode('LOCATIONS'); setSelectedLocation(null); setMovingItem(null); }}
               className={clsx("px-6 py-2.5 rounded-lg font-medium transition-all", editMode === 'LOCATIONS' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
             >
               1. Edit Main Zones
             </button>
             <button 
-              onClick={() => setEditMode('AREAS')}
+              onClick={() => { setEditMode('AREAS'); setMovingItem(null); }}
               disabled={!selectedLocation}
               className={clsx("px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2", editMode === 'AREAS' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700 disabled:opacity-30")}
             >
@@ -208,29 +212,39 @@ export default function AdminMapEditor() {
       <div className="flex-1 bg-stone-200 p-4 sm:p-8 overflow-hidden flex justify-center items-center">
         <div 
           ref={containerRef}
-          className="relative w-full max-w-7xl aspect-[16/9] bg-stone-300 rounded-2xl shadow-2xl border-4 border-white overflow-hidden"
+          onClick={handleMapClick}
+          className={clsx(
+            "relative w-full max-w-7xl aspect-[16/9] bg-stone-300 rounded-2xl shadow-2xl border-4 border-white overflow-hidden transition-all",
+            !isMapLocked && movingItem ? "cursor-crosshair ring-4 ring-emerald-500/50" : ""
+          )}
           style={{ backgroundImage: "url('/calabassa-map.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}
         >
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
 
+          {!isMapLocked && movingItem && (
+             <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-stone-900 text-white px-6 py-2 rounded-full font-bold shadow-xl animate-bounce z-50 pointer-events-none">
+               Click anywhere on the map to place!
+             </div>
+          )}
+
           {locations.map((loc) => (
-            <motion.div
+            <div
               key={`loc-${loc.id}`}
-              drag={!isMapLocked}
-              dragConstraints={containerRef}
-              dragMomentum={false}
-              onDragEnd={(e, info) => handleDragEnd(loc.id, 'LOCATION', info)}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedLocation(loc);
-                setEditMode('AREAS');
+                if (!isMapLocked) {
+                  setMovingItem({ id: loc.id, type: 'LOCATION' });
+                } else {
+                  setSelectedLocation(loc);
+                  setEditMode('AREAS');
+                }
               }}
-              style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
+              style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%`, position: 'absolute', transform: 'translate(-50%, -50%)' }}
               className={clsx(
                 "w-20 h-20 rounded-full flex flex-col items-center justify-center transition-all group",
-                !isMapLocked ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
-                selectedLocation?.id === loc.id 
-                  ? "bg-emerald-500/30 border-4 border-emerald-500 z-30 scale-110" 
+                !isMapLocked ? "cursor-pointer hover:bg-emerald-500/20" : "cursor-pointer",
+                selectedLocation?.id === loc.id || (movingItem?.id === loc.id && movingItem?.type === 'LOCATION')
+                  ? "bg-emerald-500/30 border-4 border-emerald-500 z-30 scale-110 shadow-[0_0_15px_rgba(16,185,129,0.5)]" 
                   : "bg-transparent border-2 border-dashed border-stone-800/50 z-20 hover:bg-white/20"
               )}
             >
@@ -244,22 +258,24 @@ export default function AdminMapEditor() {
                   <Edit3 className="w-4 h-4" />
                 </button>
               )}
-            </motion.div>
+            </div>
           ))}
 
           {areas.filter(a => selectedLocation ? a.location_id === selectedLocation.id : true).map((area) => (
-            <motion.div
+            <div
               key={`area-${area.id}`}
-              drag={!isMapLocked && editMode === 'AREAS' && selectedLocation?.id === area.location_id}
-              dragConstraints={containerRef}
-              dragMomentum={false}
-              onDragEnd={(e, info) => handleDragEnd(area.id, 'AREA', info)}
-              style={{ left: `${area.pos_x}%`, top: `${area.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isMapLocked && editMode === 'AREAS' && selectedLocation?.id === area.location_id) {
+                  setMovingItem({ id: area.id, type: 'AREA' });
+                }
+              }}
+              style={{ left: `${area.pos_x}%`, top: `${area.pos_y}%`, position: 'absolute', transform: 'translate(-50%, -50%)' }}
               className={clsx(
                 "px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap flex items-center gap-2 transition-colors group",
-                !isMapLocked && editMode === 'AREAS' && selectedLocation?.id === area.location_id ? "cursor-grab active:cursor-grabbing" : "cursor-default",
+                !isMapLocked && editMode === 'AREAS' && selectedLocation?.id === area.location_id ? "cursor-pointer hover:border-emerald-500" : "cursor-default",
                 editMode === 'AREAS' && selectedLocation?.id === area.location_id
-                  ? "bg-stone-900 text-white border-stone-700 z-40 hover:bg-stone-800" 
+                  ? (movingItem?.id === area.id && movingItem?.type === 'AREA' ? "bg-emerald-600 text-white border-emerald-400 z-50 scale-110 shadow-emerald-500/50" : "bg-stone-900 text-white border-stone-700 z-40 hover:bg-stone-800")
                   : "bg-stone-900/40 text-white/80 border-transparent z-10 pointer-events-none"
               )}
             >
@@ -287,7 +303,7 @@ export default function AdminMapEditor() {
                   )}
                 </>
               )}
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
