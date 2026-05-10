@@ -190,7 +190,7 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
         </div>
       </div>
 
-      <div className="flex-1 bg-stone-100 p-4 sm:p-8 overflow-y-auto">
+      <div className="flex-1 bg-white p-4 sm:p-8 overflow-y-auto text-black">
         {/* Static Grid Container */}
         <div className="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-stone-200">
           <div className="w-full text-center py-2 bg-blue-50 text-blue-800 rounded-xl text-xs font-bold uppercase tracking-widest mb-8">

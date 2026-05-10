@@ -250,7 +250,7 @@ export default function AdminMapEditor() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] font-sans relative bg-stone-100">
+    <div className="flex flex-col h-[calc(100vh-80px)] font-sans relative bg-white text-black">
       
       {/* Top Header */}
       <div className="bg-white border-b border-stone-200 p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm z-20 shrink-0">

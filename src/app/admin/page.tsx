@@ -6,7 +6,7 @@ import AdminMapEditor from '@/components/AdminMapEditor';
 
 export default function AdminPage() {
   return (
-    <main className="min-h-screen bg-stone-50 pb-12">
+    <main className="min-h-screen bg-white pb-12">
       <Header />
       <AdminMapEditor />
     </main>
