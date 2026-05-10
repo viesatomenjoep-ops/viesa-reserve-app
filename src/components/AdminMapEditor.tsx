@@ -548,20 +548,28 @@ export default function AdminMapEditor() {
                           const file = e.target.files?.[0];
                           if (!file) return;
                           
-                          // Check if file is an image and reasonable size for Base64 (e.g., < 2MB)
                           if (!file.type.startsWith('image/')) {
                             alert("Selecteer a.u.b. een geldige afbeelding.");
-                            return;
-                          }
-                          if (file.size > 2 * 1024 * 1024) {
-                            alert("Logo is te groot! Zorg dat de afbeelding kleiner is dan 2MB.");
                             return;
                           }
 
                           const reader = new FileReader();
                           reader.onload = (event) => {
-                            if (event.target?.result) {
-                              setVenueFormData({ ...venueFormData, logo_url: event.target.result as string });
+                            if (typeof event.target?.result === 'string') {
+                              // Compress image using canvas
+                              const img = new Image();
+                              img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const MAX_WIDTH = 300;
+                                const scaleSize = MAX_WIDTH / img.width;
+                                canvas.width = MAX_WIDTH;
+                                canvas.height = img.height * scaleSize;
+                                const ctx = canvas.getContext('2d');
+                                ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                const compressedBase64 = canvas.toDataURL('image/webp', 0.8);
+                                setVenueFormData({ ...venueFormData, logo_url: compressedBase64 });
+                              };
+                              img.src = event.target.result;
                             }
                           };
                           reader.readAsDataURL(file);
@@ -575,7 +583,17 @@ export default function AdminMapEditor() {
                     <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">OF PLAK EEN LINK</span>
                     <hr className="flex-1 border-stone-200" />
                   </div>
-                  <input type="text" value={venueFormData.logo_url} onChange={(e) => setVenueFormData({...venueFormData, logo_url: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="https://jouw-website.nl/logo.png" />
+                  <input 
+                    type="text" 
+                    value={venueFormData.logo_url?.startsWith('data:image') ? 'Lokaal geüpload (verborgen code)' : venueFormData.logo_url || ''} 
+                    onChange={(e) => {
+                      if (e.target.value !== 'Lokaal geüpload (verborgen code)') {
+                        setVenueFormData({...venueFormData, logo_url: e.target.value});
+                      }
+                    }} 
+                    className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" 
+                    placeholder="https://jouw-website.nl/logo.png" 
+                  />
 
                   {venueFormData.logo_url && (
                     <div className="mt-2 p-2 bg-stone-100 border border-stone-200 rounded-lg flex items-center justify-center">
