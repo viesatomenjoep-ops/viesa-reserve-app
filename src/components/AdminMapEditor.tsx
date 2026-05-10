@@ -115,7 +115,7 @@ export default function AdminMapEditor() {
     }
 
     const { data: venueData } = await supabase.from('venues').select('*').limit(1).single();
-    const { data: locData } = await supabase.from('locations').select('*').order('sort_order', { ascending: true });
+    const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
     const { data: bedData } = await supabase.from('beds').select('id, area_id');
     
@@ -128,7 +128,10 @@ export default function AdminMapEditor() {
       setVenueFormData({ name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
     }
     
-    if (locData) setLocations(locData);
+    if (locData) {
+      locData.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      setLocations(locData);
+    }
     if (areaData) setAreas(areaData);
     if (bedData) setBeds(bedData as {id: string, area_id: string}[]);
     setHasUnsavedMapChanges(false);
