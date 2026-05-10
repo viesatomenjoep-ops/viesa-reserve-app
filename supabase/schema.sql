@@ -2,7 +2,6 @@
 -- Run this entire script ONCE in your Supabase SQL Editor.
 -- It will drop old tables and recreate everything cleanly with the new rules.
 
-DROP TABLE IF EXISTS bookings CASCADE;
 DROP TABLE IF EXISTS beds CASCADE;
 DROP TABLE IF EXISTS areas CASCADE;
 DROP TABLE IF EXISTS locations CASCADE;
@@ -22,6 +21,7 @@ CREATE TABLE venues (
 CREATE TABLE locations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(100) NOT NULL, -- e.g. "Zone 1", "Zone 2"
+  sort_order INTEGER DEFAULT 0, -- Used for drag-and-drop ordering in the sidebar
   pos_x DECIMAL(5,2) NOT NULL DEFAULT 0,
   pos_y DECIMAL(5,2) NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -116,3 +116,9 @@ INSERT INTO beds (area_id, name, price, min_spend, status, reserved_until, pos_x
   ('a1111111-1111-1111-1111-222222222222', 'Row 3 - A', 100, 250, 'AVAILABLE', NULL, 20, 80),
   ('a1111111-1111-1111-1111-222222222222', 'Row 3 - B', 100, 250, 'AVAILABLE', NULL, 50, 80),
   ('a1111111-1111-1111-1111-222222222222', 'Row 3 - C', 100, 250, 'AVAILABLE', NULL, 80, 80);
+
+-- 6. Disable RLS (Row Level Security) for public testing
+ALTER TABLE venues DISABLE ROW LEVEL SECURITY;
+ALTER TABLE locations DISABLE ROW LEVEL SECURITY;
+ALTER TABLE areas DISABLE ROW LEVEL SECURITY;
+ALTER TABLE beds DISABLE ROW LEVEL SECURITY;

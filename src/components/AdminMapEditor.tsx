@@ -12,6 +12,7 @@ export interface Location {
   name: string;
   pos_x: number;
   pos_y: number;
+  sort_order?: number;
 }
 
 export interface Area {
@@ -48,6 +49,42 @@ export default function AdminMapEditor() {
 
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
+
+  // Drag and drop state
+  const [draggedLocationId, setDraggedLocationId] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedLocationId(id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // allow dropping
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedLocationId || draggedLocationId === targetId) return;
+
+    const items = [...locations];
+    const draggedIdx = items.findIndex(l => l.id === draggedLocationId);
+    const targetIdx = items.findIndex(l => l.id === targetId);
+    if (draggedIdx === -1 || targetIdx === -1) return;
+
+    const [draggedItem] = items.splice(draggedIdx, 1);
+    items.splice(targetIdx, 0, draggedItem);
+    
+    const updatedItems = items.map((loc, idx) => ({ ...loc, sort_order: idx }));
+    setLocations(updatedItems);
+    setDraggedLocationId(null);
+
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+       for (const loc of updatedItems) {
+         await supabase.from('locations').update({ sort_order: loc.sort_order }).eq('id', loc.id);
+       }
+    }
+  };
   const [beds, setBeds] = useState<{id: string, area_id: string}[]>([]);
 
   // Moving logic
@@ -78,7 +115,7 @@ export default function AdminMapEditor() {
     }
 
     const { data: venueData } = await supabase.from('venues').select('*').limit(1).single();
-    const { data: locData } = await supabase.from('locations').select('*');
+    const { data: locData } = await supabase.from('locations').select('*').order('sort_order', { ascending: true });
     const { data: areaData } = await supabase.from('areas').select('*');
     const { data: bedData } = await supabase.from('beds').select('id, area_id');
     
@@ -305,7 +342,17 @@ export default function AdminMapEditor() {
             )}
 
             {locations.map(loc => (
-              <div key={loc.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
+              <div 
+                key={loc.id} 
+                draggable
+                onDragStart={(e) => handleDragStart(e, loc.id)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, loc.id)}
+                className={clsx(
+                  "bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm transition-all cursor-move",
+                  draggedLocationId === loc.id ? "opacity-50 scale-95 border-emerald-500" : "opacity-100"
+                )}
+              >
                 {/* Main Zone Header */}
                 <div className="bg-stone-100 px-4 py-3 flex items-center justify-between border-b border-stone-200">
                   <span className="font-bold text-stone-900 text-lg">{loc.name}</span>

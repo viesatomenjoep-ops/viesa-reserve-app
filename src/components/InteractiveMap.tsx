@@ -85,7 +85,7 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
     const { data: venueData } = await supabase.from('venues').select('name, map_image_url').limit(1).single();
     if (venueData) setVenue(venueData);
 
-    const { data: locData } = await supabase.from('locations').select('*');
+    const { data: locData } = await supabase.from('locations').select('*').order('sort_order', { ascending: true });
     const { data: areaData } = await supabase.from('areas').select('*');
     if (locData) setLocations(locData);
     if (areaData) setAreas(areaData);
