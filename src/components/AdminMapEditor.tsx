@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
-import { Plus, Move, MapPin } from 'lucide-react';
+import { Plus, Move, MapPin, Grid } from 'lucide-react';
 import { clsx } from 'clsx';
+import AdminBedEditor from './AdminBedEditor';
 
 export interface Location {
   id: string;
@@ -27,6 +28,9 @@ export default function AdminMapEditor() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [editMode, setEditMode] = useState<'LOCATIONS' | 'AREAS'>('LOCATIONS');
+  
+  // State to handle switching to the Bed Editor for a specific Area
+  const [activeArea, setActiveArea] = useState<Area | null>(null);
   
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -87,6 +91,10 @@ export default function AdminMapEditor() {
       if (name) setAreas([...areas, { id: Math.random().toString(), location_id: selectedLocation.id, name, type: 'BEDS', pos_x: 50, pos_y: 50 }]);
     }
   };
+
+  if (activeArea) {
+    return <AdminBedEditor area={activeArea} onBack={() => setActiveArea(null)} />;
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] font-sans">
@@ -176,14 +184,25 @@ export default function AdminMapEditor() {
               onDragEnd={(e, info) => handleDragEnd(area.id, 'AREA', info)}
               style={{ left: `${area.pos_x}%`, top: `${area.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
               className={clsx(
-                "px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap flex items-center gap-2",
+                "px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap flex items-center gap-2 transition-colors",
                 editMode === 'AREAS' && selectedLocation?.id === area.location_id
-                  ? "bg-stone-900 text-white border-stone-700 z-40 cursor-grab active:cursor-grabbing" 
+                  ? "bg-stone-900 text-white border-stone-700 z-40 cursor-grab active:cursor-grabbing hover:bg-stone-800" 
                   : "bg-stone-900/40 text-white/80 border-transparent z-10 pointer-events-none"
               )}
             >
               {area.name}
-              {editMode === 'AREAS' && selectedLocation?.id === area.location_id && <Move className="w-3 h-3 text-stone-400" />}
+              {editMode === 'AREAS' && selectedLocation?.id === area.location_id && (
+                <>
+                  <Move className="w-3 h-3 text-stone-400" />
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setActiveArea(area); }}
+                    className="ml-2 bg-emerald-500 hover:bg-emerald-400 text-white p-1 rounded-md"
+                    title="Edit Beds"
+                  >
+                    <Grid className="w-3 h-3" />
+                  </button>
+                </>
+              )}
             </motion.div>
           ))}
 
