@@ -1,71 +1,72 @@
--- VIESA Reserve - Master SQL Schema
--- Copy and paste this entirely into your Supabase SQL Editor
+-- VIESA Reserve - Admin Master Schema for Cala Bassa Prototype
 
--- 1. Create beds table (Includes X/Y coordinates for custom mapping)
+-- 1. Locations (The main 5 zones on the map)
+CREATE TABLE locations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(100) NOT NULL, -- e.g. "Zone 1", "Zone 2"
+  pos_x DECIMAL(5,2) NOT NULL DEFAULT 0,
+  pos_y DECIMAL(5,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 2. Areas (The sub-zones within a location)
+CREATE TABLE areas (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  location_id UUID REFERENCES locations(id) ON DELETE CASCADE,
+  name VARCHAR(100) NOT NULL, -- e.g. "Camas Chiringo", "Hamacas Mumm"
+  type VARCHAR(50) NOT NULL, -- 'BEDS', 'HAMMOCKS', 'RESTAURANT'
+  pos_x DECIMAL(5,2) NOT NULL DEFAULT 0, -- Position relative to the main map or zone map
+  pos_y DECIMAL(5,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 3. Beds / Tables
 CREATE TABLE beds (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(50) NOT NULL,
-  zone VARCHAR(50) NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
+  area_id UUID REFERENCES areas(id) ON DELETE CASCADE,
+  name VARCHAR(50) NOT NULL, -- e.g. "Bed 1", "Table 12"
+  price DECIMAL(10, 2) NOT NULL DEFAULT 0,
   min_spend DECIMAL(10, 2) NOT NULL DEFAULT 0,
-  status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE', -- 'AVAILABLE', 'RESERVED', 'BOOKED'
-  pos_x DECIMAL(5,2) NOT NULL DEFAULT 0, -- X coordinate percentage (0-100)
-  pos_y DECIMAL(5,2) NOT NULL DEFAULT 0, -- Y coordinate percentage (0-100)
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+  pos_x DECIMAL(5,2) NOT NULL DEFAULT 0, -- Position within the area's grid/map
+  pos_y DECIMAL(5,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. Create bookings table
-CREATE TABLE bookings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  bed_id UUID REFERENCES beds(id),
-  user_name VARCHAR(100) NOT NULL,
-  phone VARCHAR(50) NOT NULL,
-  email VARCHAR(100),
-  date DATE NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 3. Turn on Real-time for beds so the map updates instantly
+-- Enable realtime
+ALTER PUBLICATION supabase_realtime ADD TABLE locations;
+ALTER PUBLICATION supabase_realtime ADD TABLE areas;
 ALTER PUBLICATION supabase_realtime ADD TABLE beds;
 
--- 4. Insert Logical Layout Data
--- We structure the beach club into logical zones.
--- pos_x and pos_y are percentages (0-100) for responsive rendering.
+-- Initial Seed Data based on Cala Bassa map
+INSERT INTO locations (id, name, pos_x, pos_y) VALUES 
+  ('11111111-1111-1111-1111-111111111111', 'Zone 1', 15, 50),
+  ('22222222-2222-2222-2222-222222222222', 'Zone 2', 30, 25),
+  ('33333333-3333-3333-3333-333333333333', 'Zone 3', 65, 25),
+  ('44444444-4444-4444-4444-444444444444', 'Zone 4', 85, 45),
+  ('55555555-5555-5555-5555-555555555555', 'Zone 5', 90, 75);
 
--- Zone 1: Front Row (Closest to the water, bottom of the map)
-INSERT INTO beds (name, zone, price, min_spend, status, pos_x, pos_y) VALUES
-  ('101', 'Zone 1: Front Row', 500, 1000, 'AVAILABLE', 20, 85),
-  ('102', 'Zone 1: Front Row', 500, 1000, 'AVAILABLE', 40, 85),
-  ('103', 'Zone 1: Front Row', 500, 1000, 'RESERVED',  60, 85),
-  ('104', 'Zone 1: Front Row', 500, 1000, 'AVAILABLE', 80, 85);
+-- Zone 1 Areas
+INSERT INTO areas (location_id, name, type, pos_x, pos_y) VALUES
+  ('11111111-1111-1111-1111-111111111111', 'Restaurante Chiringo', 'RESTAURANT', 5, 40),
+  ('11111111-1111-1111-1111-111111111111', 'Camas Chiringo', 'BEDS', 18, 38),
+  ('11111111-1111-1111-1111-111111111111', 'Hamacas Chiringo', 'HAMMOCKS', 15, 60);
 
--- Zone 2: Second Row
-INSERT INTO beds (name, zone, price, min_spend, status, pos_x, pos_y) VALUES
-  ('201', 'Zone 2: Second Row', 400, 800, 'AVAILABLE', 25, 70),
-  ('202', 'Zone 2: Second Row', 400, 800, 'BOOKED',    45, 70),
-  ('203', 'Zone 2: Second Row', 400, 800, 'AVAILABLE', 65, 70);
+-- Zone 2 Areas
+INSERT INTO areas (location_id, name, type, pos_x, pos_y) VALUES
+  ('22222222-2222-2222-2222-222222222222', 'Hamacas Mumm', 'HAMMOCKS', 35, 20),
+  ('22222222-2222-2222-2222-222222222222', 'Camas Mumm', 'BEDS', 38, 35);
 
--- Zone 3: VIP Deck (Central, prime view)
-INSERT INTO beds (name, zone, price, min_spend, status, pos_x, pos_y) VALUES
-  ('V1', 'Zone 3: VIP Deck', 1500, 3000, 'AVAILABLE', 35, 50),
-  ('V2', 'Zone 3: VIP Deck', 1500, 3000, 'AVAILABLE', 65, 50);
+-- Zone 3 Areas
+INSERT INTO areas (location_id, name, type, pos_x, pos_y) VALUES
+  ('33333333-3333-3333-3333-333333333333', 'Restaurante Central', 'RESTAURANT', 60, 20),
+  ('33333333-3333-3333-3333-333333333333', 'Hamacas Central', 'HAMMOCKS', 60, 45);
 
--- Zone 4: Cabanas (Sides, private)
-INSERT INTO beds (name, zone, price, min_spend, status, pos_x, pos_y) VALUES
-  ('C1', 'Zone 4: Cabanas', 2000, 5000, 'AVAILABLE', 10, 40),
-  ('C2', 'Zone 4: Cabanas', 2000, 5000, 'AVAILABLE', 90, 40);
+-- Zone 4 Areas
+INSERT INTO areas (location_id, name, type, pos_x, pos_y) VALUES
+  ('44444444-4444-4444-4444-444444444444', 'Camas Taittinger', 'BEDS', 80, 48);
 
--- Zone 5: Poolside
-INSERT INTO beds (name, zone, price, min_spend, status, pos_x, pos_y) VALUES
-  ('P1', 'Zone 5: Poolside', 600, 1200, 'AVAILABLE', 30, 30),
-  ('P2', 'Zone 5: Poolside', 600, 1200, 'AVAILABLE', 50, 30),
-  ('P3', 'Zone 5: Poolside', 600, 1200, 'RESERVED',  70, 30);
-
--- Restaurant Tables (Top section)
-INSERT INTO beds (name, zone, price, min_spend, status, pos_x, pos_y) VALUES
-  ('T1', 'Restaurant', 0, 500, 'AVAILABLE', 30, 10),
-  ('T2', 'Restaurant', 0, 500, 'AVAILABLE', 50, 10),
-  ('T3', 'Restaurant', 0, 500, 'AVAILABLE', 70, 10);
+-- Zone 5 Areas
+INSERT INTO areas (location_id, name, type, pos_x, pos_y) VALUES
+  ('55555555-5555-5555-5555-555555555555', 'Hamacas Portobello', 'HAMMOCKS', 85, 60),
+  ('55555555-5555-5555-5555-555555555555', 'Restaurante Portobello', 'RESTAURANT', 80, 80);
