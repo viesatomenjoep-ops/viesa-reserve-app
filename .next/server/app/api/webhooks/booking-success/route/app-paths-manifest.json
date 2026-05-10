@@ -1,0 +1,3 @@
+{
+  "/api/webhooks/booking-success/route": "app/api/webhooks/booking-success/route.js"
+}
