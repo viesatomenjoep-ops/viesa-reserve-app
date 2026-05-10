@@ -503,7 +503,28 @@ export default function AdminMapEditor() {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-stone-700 mb-1">Locatie / Adres</label>
-                  <input type="text" value={venueFormData.location_address} onChange={(e) => setVenueFormData({...venueFormData, location_address: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. Ibiza, Spain" />
+                  <input type="text" value={venueFormData.location_address} onChange={(e) => setVenueFormData({...venueFormData, location_address: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. Cala Bassa, Ibiza" />
+                  
+                  {/* Magic Google Maps Button */}
+                  <button 
+                    onClick={() => {
+                      if (!venueFormData.location_address) {
+                        alert("Vul eerst een Locatie/Adres in hierboven!");
+                        return;
+                      }
+                      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+                      if (!apiKey) {
+                        alert("Google Maps API Key ontbreekt in Vercel (NEXT_PUBLIC_GOOGLE_MAPS_API_KEY). Tot die tijd kun je handmatig een afbeelding uploaden via Cloudinary.");
+                        return;
+                      }
+                      const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(venueFormData.location_address)}&zoom=19&size=1200x800&maptype=satellite&key=${apiKey}`;
+                      setVenueFormData({...venueFormData, map_image_url: staticMapUrl});
+                      alert("Magic Google Maps Link gegenereerd!");
+                    }}
+                    className="mt-2 w-full flex items-center justify-center py-2 bg-blue-50 text-blue-700 font-bold rounded-lg border-2 border-blue-200 hover:bg-blue-100 transition-colors text-sm"
+                  >
+                    ✨ Magic: Haal Google Maps Satellietfoto op
+                  </button>
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-stone-700 mb-1">Achtergrond Plattegrond URL</label>
