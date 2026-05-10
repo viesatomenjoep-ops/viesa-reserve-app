@@ -35,7 +35,8 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const [areas, setAreas] = useState<Area[]>([]);
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   const [beds, setBeds] = useState<Bed[]>([]);
-  const [venue, setVenue] = useState({ name: 'VIESA', map_image_url: '/calabassa-map.jpg' });
+  const [allVenues, setAllVenues] = useState<{id: string, name: string}[]>([]);
+  const [venue, setVenue] = useState<{id?: string, name: string, map_image_url: string}>({ name: 'VIESA', map_image_url: '/calabassa-map.jpg' });
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
   
   // Mobile-first: Default to LIST view. User can toggle to MAP.
@@ -84,19 +85,30 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       return;
     }
     
-    const { data: venueData } = await supabase.from('venues').select('id, name, map_image_url').limit(1).single();
-    if (venueData) setVenue(venueData);
+    const { data: venuesData } = await supabase.from('venues').select('id, name, map_image_url');
+    if (venuesData && venuesData.length > 0) {
+      setAllVenues(venuesData);
+      if (!venue) setVenue(venuesData[0]);
+    }
 
     const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
     if (locData) {
       // Filter by venue_id if it exists, otherwise show all
-      const filteredLocs = locData.filter(l => l.venue_id === venueData?.id || !l.venue_id);
+      const targetVenueId = venue ? venue.id : (venuesData?.[0]?.id);
+      const filteredLocs = locData.filter(l => l.venue_id === targetVenueId || !l.venue_id);
       filteredLocs.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
       setLocations(filteredLocs);
     }
     if (areaData) setAreas(areaData);
   };
+
+  // Re-fetch locations when venue changes
+  useEffect(() => {
+    if (allVenues.length > 0) {
+      fetchData();
+    }
+  }, [venue?.id]);
 
   const fetchBedsData = async (areaId: string) => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
@@ -204,8 +216,25 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       {/* Top Toggle Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
+          {allVenues.length > 1 && (
+            <div className="mb-2">
+              <select 
+                value={venue?.id || ''} 
+                onChange={(e) => {
+                  const selected = allVenues.find(v => v.id === e.target.value);
+                  if (selected) setVenue(selected as any);
+                }}
+                className="text-emerald-600 font-bold uppercase text-xs tracking-wider bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1 cursor-pointer outline-none appearance-none pr-8 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M3%205L6%208L9%205%22%20stroke%3D%22%23059669%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat"
+                style={{ backgroundPosition: 'right 8px center' }}
+              >
+                {allVenues.map(v => (
+                  <option key={v.id} value={v.id}>{v.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900">Select a Location</h2>
-          <p className="text-stone-500 text-sm">Choose your preferred spot at the beach club.</p>
+          <p className="text-stone-500 text-sm">Choose your preferred spot at {venue?.name || 'the beach club'}.</p>
         </div>
 
         <div className="flex bg-white border border-stone-200 p-1 rounded-xl self-stretch sm:self-auto shadow-sm">
