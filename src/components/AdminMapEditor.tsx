@@ -146,11 +146,18 @@ export default function AdminMapEditor() {
   // --- CRUD Operations ---
   const handleSaveLocation = async () => {
     if (!formData.name) return;
-    const newLoc: Omit<Location, 'id'> = { name: formData.name, pos_x: 50, pos_y: 50 };
-    setLocations([...locations, { ...newLoc, id: Math.random().toString() }]);
+    const tempId = Math.random().toString();
+    const optimisticLoc: Location = { id: tempId, name: formData.name, pos_x: 50, pos_y: 50 };
+    setLocations([...locations, optimisticLoc]);
+    
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      await supabase.from('locations').insert([newLoc]);
-      fetchData();
+      const { data, error } = await supabase.from('locations').insert([{ name: formData.name, pos_x: 50, pos_y: 50 }]).select().single();
+      if (error) {
+        console.error(error);
+        alert("Fout bij aanmaken zone: " + error.message);
+      } else if (data) {
+        setLocations(prev => prev.map(l => l.id === tempId ? data : l));
+      }
     }
     setShowLocationModal(false);
     setFormData({ name: '', type: 'BEDS' });
@@ -172,11 +179,18 @@ export default function AdminMapEditor() {
 
   const handleSaveArea = async () => {
     if (!formData.name || !modalTargetLocationId) return;
-    const newArea: Omit<Area, 'id'> = { location_id: modalTargetLocationId, name: formData.name, type: formData.type, pos_x: 50, pos_y: 50 };
-    setAreas([...areas, { ...newArea, id: Math.random().toString() }]);
+    const tempId = Math.random().toString();
+    const optimisticArea: Area = { id: tempId, location_id: modalTargetLocationId, name: formData.name, type: formData.type, pos_x: 50, pos_y: 50 };
+    setAreas([...areas, optimisticArea]);
+    
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      await supabase.from('areas').insert([newArea]);
-      fetchData();
+      const { data, error } = await supabase.from('areas').insert([{ location_id: modalTargetLocationId, name: formData.name, type: formData.type, pos_x: 50, pos_y: 50 }]).select().single();
+      if (error) {
+        console.error(error);
+        alert("Fout bij aanmaken area: " + error.message);
+      } else if (data) {
+        setAreas(prev => prev.map(a => a.id === tempId ? data : a));
+      }
     }
     setShowAreaModal(false);
     setFormData({ name: '', type: 'BEDS' });
@@ -197,24 +211,32 @@ export default function AdminMapEditor() {
 
   const handleSaveVenue = async () => {
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      if (venue?.id !== 'fallback') {
-        await supabase.from('venues').update({ 
-          name: venueFormData.name, 
-          location_address: venueFormData.location_address, 
-          map_image_url: venueFormData.map_image_url 
-        }).eq('id', venue!.id);
+      const payload = { 
+        name: venueFormData.name, 
+        location_address: venueFormData.location_address, 
+        map_image_url: venueFormData.map_image_url 
+      };
+      
+      if (venue?.id && venue.id !== 'fallback') {
+        const { error } = await supabase.from('venues').update(payload).eq('id', venue.id);
+        if (error) {
+          alert("Opslaan mislukt! Tabel ontbreekt of error: " + error.message);
+          return;
+        }
       } else {
-        await supabase.from('venues').insert([{ 
-          name: venueFormData.name, 
-          location_address: venueFormData.location_address, 
-          map_image_url: venueFormData.map_image_url 
-        }]);
+        const { data, error } = await supabase.from('venues').insert([payload]).select().single();
+        if (error) {
+          alert("BELANGRIJK: Je hebt de nieuwe schema.sql code nog niet uitgevoerd in Supabase! De 'venues' tabel mist nog. Plak de schema.sql code in je SQL Editor en klik Run.");
+          return;
+        }
+        if (data) setVenue(data);
       }
-      fetchData();
+      setVenue(prev => ({ ...prev!, ...payload }));
     } else {
       setVenue({ ...venue!, ...venueFormData });
     }
     setShowVenueModal(false);
+    alert("Bedrijfsinstellingen & Achtergrond succesvol opgeslagen!");
   };
 
   // If Bed Editor is open, show it
