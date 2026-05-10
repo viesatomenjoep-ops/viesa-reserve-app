@@ -256,48 +256,48 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
         <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">Edit Bed</h3>
-              <button onClick={() => setEditingBed(null)} className="text-stone-400 hover:text-stone-900"><X /></button>
+              <h3 className="text-xl font-bold text-black">Edit Bed</h3>
+              <button onClick={() => setEditingBed(null)} className="text-stone-400 hover:text-black"><X /></button>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">Name</label>
+                <label className="block text-sm font-bold text-black mb-1">Name</label>
                 <input 
                   type="text" 
                   value={editingBed.name} 
                   onChange={(e) => setEditingBed({...editingBed, name: e.target.value})}
-                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
                 />
               </div>
               
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-bold text-stone-700 mb-1">Price (€)</label>
+                  <label className="block text-sm font-bold text-black mb-1">Price (€)</label>
                   <input 
                     type="number" 
                     value={editingBed.price} 
                     onChange={(e) => setEditingBed({...editingBed, price: parseFloat(e.target.value)})}
-                    className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-bold text-stone-700 mb-1">Min Spend (€)</label>
+                  <label className="block text-sm font-bold text-black mb-1">Min Spend (€)</label>
                   <input 
                     type="number" 
                     value={editingBed.min_spend} 
                     onChange={(e) => setEditingBed({...editingBed, min_spend: parseFloat(e.target.value)})}
-                    className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">Status</label>
+                <label className="block text-sm font-bold text-black mb-1">Status</label>
                 <select 
                   value={editingBed.status}
                   onChange={(e) => setEditingBed({...editingBed, status: e.target.value as any})}
-                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
                 >
                   <option value="AVAILABLE">AVAILABLE (Green)</option>
                   <option value="PARTIAL">PARTIALLY BOOKED (Orange)</option>
@@ -312,7 +312,7 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
                     type="time" 
                     value={editingBed.reserved_until || ''} 
                     onChange={(e) => setEditingBed({...editingBed, reserved_until: e.target.value})}
-                    className="w-full p-2 border border-orange-300 bg-orange-50 rounded-lg outline-none"
+                    className="w-full p-2 border border-orange-300 bg-orange-50 rounded-lg outline-none text-black font-medium"
                   />
                 </div>
               )}
@@ -341,39 +341,39 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
         <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">Bulk Create Beds</h3>
-              <button onClick={() => setShowBulkModal(false)} className="text-stone-400 hover:text-stone-900"><X /></button>
+              <h3 className="text-xl font-bold text-black">Bulk Create Beds</h3>
+              <button onClick={() => setShowBulkModal(false)} className="text-stone-400 hover:text-black"><X /></button>
             </div>
-            <p className="text-sm text-stone-500 mb-4">Instantly generate multiple beds. E.g. "Row 3 - " with count 10 creates 10 beds named Row 3 - 1 to 10.</p>
+            <p className="text-sm text-stone-600 mb-4 font-medium">Instantly generate multiple beds. E.g. "Row 3 - " with count 10 creates 10 beds named Row 3 - 1 to 10.</p>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">Name Prefix</label>
+                <label className="block text-sm font-bold text-black mb-1">Name Prefix</label>
                 <input 
                   type="text" 
                   value={bulkData.prefix} 
                   onChange={(e) => setBulkData({...bulkData, prefix: e.target.value})}
-                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">Number of Beds to Create</label>
+                <label className="block text-sm font-bold text-black mb-1">Number of Beds to Create</label>
                 <input 
                   type="number" 
                   value={bulkData.count} 
                   onChange={(e) => setBulkData({...bulkData, count: parseInt(e.target.value)})}
-                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
                   min="1" max="100"
                 />
               </div>
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-bold text-stone-700 mb-1">Price (€)</label>
-                  <input type="number" value={bulkData.price} onChange={(e) => setBulkData({...bulkData, price: parseFloat(e.target.value)})} className="w-full p-2 border border-stone-300 rounded-lg" />
+                  <label className="block text-sm font-bold text-black mb-1">Price (€)</label>
+                  <input type="number" value={bulkData.price} onChange={(e) => setBulkData({...bulkData, price: parseFloat(e.target.value)})} className="w-full p-2 border border-stone-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 text-black font-medium" />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-bold text-stone-700 mb-1">Min Spend (€)</label>
-                  <input type="number" value={bulkData.min_spend} onChange={(e) => setBulkData({...bulkData, min_spend: parseFloat(e.target.value)})} className="w-full p-2 border border-stone-300 rounded-lg" />
+                  <label className="block text-sm font-bold text-black mb-1">Min Spend (€)</label>
+                  <input type="number" value={bulkData.min_spend} onChange={(e) => setBulkData({...bulkData, min_spend: parseFloat(e.target.value)})} className="w-full p-2 border border-stone-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 text-black font-medium" />
                 </div>
               </div>
             </div>
