@@ -294,8 +294,8 @@ export default function AdminMapEditor() {
                 key={`loc-${loc.id}`}
                 style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%`, position: 'absolute', transform: 'translate(-50%, -50%)' }}
                 className={clsx(
-                  "w-16 h-16 sm:w-20 sm:h-20 rounded-full flex flex-col items-center justify-center transition-all shadow-lg",
-                  movingItem?.id === loc.id ? "bg-blue-500/80 border-4 border-white scale-125 z-50" : "bg-transparent border-4 border-dashed border-stone-900/40 z-20 pointer-events-none"
+                  "w-16 h-16 sm:w-20 sm:h-20 rounded-full flex flex-col items-center justify-center transition-all",
+                  movingItem?.id === loc.id ? "bg-blue-500/80 border-4 border-white shadow-lg scale-125 z-50" : "hidden"
                 )}
               >
                 {movingItem?.id === loc.id && <Crosshair className="text-white w-6 h-6" />}
