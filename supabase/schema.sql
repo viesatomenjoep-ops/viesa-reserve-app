@@ -2,6 +2,9 @@
 -- Run this entire script ONCE in your Supabase SQL Editor.
 -- It will drop old tables and recreate everything cleanly with the new rules.
 
+-- 0. Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 DROP TABLE IF EXISTS beds CASCADE;
 DROP TABLE IF EXISTS areas CASCADE;
 DROP TABLE IF EXISTS locations CASCADE;
@@ -20,6 +23,7 @@ CREATE TABLE venues (
 -- 1. Locations (The main 5 zones on the map)
 CREATE TABLE locations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  venue_id UUID REFERENCES venues(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL, -- e.g. "Zone 1", "Zone 2"
   sort_order INTEGER DEFAULT 0, -- Used for drag-and-drop ordering in the sidebar
   pos_x DECIMAL(5,2) NOT NULL DEFAULT 0,
@@ -67,12 +71,12 @@ INSERT INTO venues (id, name, location_address, map_image_url) VALUES
   ('00000000-0000-0000-0000-000000000000', 'Cala Bassa Beach Club', 'Ibiza, Spain', '/calabassa-map.jpg');
 
 -- Create the 5 Main Zones
-INSERT INTO locations (id, name, sort_order, pos_x, pos_y) VALUES 
-  ('11111111-1111-1111-1111-111111111111', 'Zone 1', 1, 15, 50),
-  ('22222222-2222-2222-2222-222222222222', 'Zone 2', 2, 30, 25),
-  ('33333333-3333-3333-3333-333333333333', 'Zone 3', 3, 65, 25),
-  ('44444444-4444-4444-4444-444444444444', 'Zone 4', 4, 85, 45),
-  ('55555555-5555-5555-5555-555555555555', 'Zone 5', 5, 90, 75);
+INSERT INTO locations (id, venue_id, name, sort_order, pos_x, pos_y) VALUES 
+  ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000000', 'Zone 1', 1, 15, 50),
+  ('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000000', 'Zone 2', 2, 30, 25),
+  ('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000000', 'Zone 3', 3, 65, 25),
+  ('44444444-4444-4444-4444-444444444444', '00000000-0000-0000-0000-000000000000', 'Zone 4', 4, 85, 45),
+  ('55555555-5555-5555-5555-555555555555', '00000000-0000-0000-0000-000000000000', 'Zone 5', 5, 90, 75);
 
 -- Zone 1: Chiringo
 INSERT INTO areas (id, location_id, name, type, pos_x, pos_y) VALUES
