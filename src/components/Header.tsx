@@ -1,12 +1,15 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Globe } from 'lucide-react';
 import { Language } from '../lib/translations';
 
 export default function Header() {
   const { language, setLanguage } = useLanguage();
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-200">
@@ -18,18 +21,30 @@ export default function Header() {
             <span className="ml-2 font-sans text-sm tracking-widest text-stone-500 uppercase mt-1">Reserve</span>
           </div>
 
-          {/* Language Selector */}
-          <div className="flex items-center space-x-2">
-            <Globe className="w-4 h-4 text-stone-500" />
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value as Language)}
-              className="bg-transparent text-sm font-medium text-stone-700 focus:outline-none cursor-pointer uppercase"
-            >
-              <option value="en">EN</option>
-              <option value="es">ES</option>
-              <option value="nl">NL</option>
-            </select>
+          {/* Navigation Links & Language Selector */}
+          <div className="flex items-center space-x-6">
+            {pathname === '/admin' ? (
+              <Link href="/" className="text-sm font-bold text-stone-500 hover:text-emerald-600 transition-colors">
+                View as Customer &rarr;
+              </Link>
+            ) : (
+              <Link href="/admin" className="text-sm font-bold text-stone-500 hover:text-blue-600 transition-colors">
+                Admin Dashboard &rarr;
+              </Link>
+            )}
+
+            <div className="flex items-center space-x-2 border-l border-stone-200 pl-6">
+              <Globe className="w-4 h-4 text-stone-500" />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as Language)}
+                className="bg-transparent text-sm font-medium text-stone-700 focus:outline-none cursor-pointer uppercase"
+              >
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="nl">NL</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
