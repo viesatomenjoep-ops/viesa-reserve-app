@@ -35,6 +35,7 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const [areas, setAreas] = useState<Area[]>([]);
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   const [beds, setBeds] = useState<Bed[]>([]);
+  const [allBeds, setAllBeds] = useState<{area_id: string, status: string}[]>([]);
   const [allVenues, setAllVenues] = useState<{id: string, name: string}[]>([]);
   const [venue, setVenue] = useState<{id?: string, name: string, map_image_url: string}>({ name: 'VIESA Beach Club', map_image_url: '' });
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
@@ -93,6 +94,8 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
 
     const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
+    const { data: bedsData } = await supabase.from('beds').select('area_id, status');
+    if (bedsData) setAllBeds(bedsData as any);
     if (locData) {
       // Filter by venue_id if it exists, otherwise show all
       const targetVenueId = venue ? venue.id : (venuesData?.[0]?.id);
@@ -154,6 +157,18 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       case 'BEDS': return <BedDouble className="w-5 h-5 text-blue-600" />;
       default: return <MapPin className="w-5 h-5 text-stone-500" />;
     }
+  };
+
+  const getAreaAvailabilityInfo = (areaId: string) => {
+    const areaBeds = allBeds.filter(b => b.area_id === areaId);
+    if (areaBeds.length === 0) return { color: 'bg-stone-300', pulse: false, title: 'Geen data' };
+    
+    const available = areaBeds.filter(b => b.status === 'AVAILABLE').length;
+    const partial = areaBeds.filter(b => b.status === 'PARTIAL').length;
+    
+    if (available > 0) return { color: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]', pulse: true, title: 'Plekken beschikbaar' };
+    if (partial > 0) return { color: 'bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.8)]', pulse: false, title: 'Gedeeltelijk beschikbaar' };
+    return { color: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]', pulse: false, title: 'Volgeboekt' };
   };
 
   // ---------------------------------------------------------------------------
@@ -275,8 +290,19 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
                       className="flex items-center justify-between p-4 rounded-2xl border border-stone-200 hover:border-black hover:shadow-lg transition-all text-left group bg-white"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="p-3 bg-white border border-stone-100 rounded-xl group-hover:border-black transition-colors">
-                          {getAreaIcon(area.type)}
+                        <div className="relative">
+                          <div className="p-3 bg-white border border-stone-100 rounded-xl group-hover:border-black transition-colors">
+                            {getAreaIcon(area.type)}
+                          </div>
+                          {(() => {
+                            const info = getAreaAvailabilityInfo(area.id);
+                            return (
+                              <div 
+                                className={clsx("absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white", info.color, info.pulse && "animate-pulse")}
+                                title={info.title}
+                              />
+                            );
+                          })()}
                         </div>
                         <div>
                           <p className="font-bold text-black">{area.name}</p>
@@ -343,6 +369,12 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
                     : "bg-stone-900/80 text-white/90 border-transparent z-30 hover:scale-105"
                 )}
               >
+                {(() => {
+                  const info = getAreaAvailabilityInfo(area.id);
+                  return (
+                    <div className={clsx("w-2 h-2 rounded-full mr-2", info.color, info.pulse && "animate-pulse")} />
+                  );
+                })()}
                 {area.name}
               </button>
             );
