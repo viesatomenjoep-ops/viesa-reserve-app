@@ -48,6 +48,7 @@ export default function AdminMapEditor() {
 
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
+  const [beds, setBeds] = useState<{id: string, area_id: string}[]>([]);
 
   // Moving logic
   const [movingItem, setMovingItem] = useState<{ id: string, type: 'LOCATION' | 'AREA', name: string } | null>(null);
@@ -79,6 +80,7 @@ export default function AdminMapEditor() {
     const { data: venueData } = await supabase.from('venues').select('*').limit(1).single();
     const { data: locData } = await supabase.from('locations').select('*');
     const { data: areaData } = await supabase.from('areas').select('*');
+    const { data: bedData } = await supabase.from('beds').select('id, area_id');
     
     if (venueData) {
       setVenue(venueData);
@@ -91,6 +93,7 @@ export default function AdminMapEditor() {
     
     if (locData) setLocations(locData);
     if (areaData) setAreas(areaData);
+    if (bedData) setBeds(bedData as {id: string, area_id: string}[]);
     setHasUnsavedMapChanges(false);
   };
 
@@ -243,7 +246,7 @@ export default function AdminMapEditor() {
 
   // If Bed Editor is open, show it
   if (activeArea) {
-    return <AdminBedEditor area={activeArea} onBack={() => setActiveArea(null)} onDeleteArea={() => { handleDeleteArea(activeArea.id); setActiveArea(null); }} />;
+    return <AdminBedEditor area={activeArea} onBack={() => { setActiveArea(null); fetchData(); }} onDeleteArea={() => { handleDeleteArea(activeArea.id); setActiveArea(null); }} />;
   }
 
   return (
@@ -325,7 +328,12 @@ export default function AdminMapEditor() {
                     <div key={area.id} className="flex flex-col gap-2 p-3 bg-stone-50 rounded-xl border border-stone-100 hover:border-emerald-200 transition-colors">
                       <div className="flex items-center justify-between">
                         <div>
-                           <span className="font-bold text-sm text-stone-800 block">{area.name}</span>
+                           <div className="flex items-center gap-2">
+                             <span className="font-bold text-sm text-stone-800 block">{area.name}</span>
+                             <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                               {beds.filter(b => b.area_id === area.id).length} bedden
+                             </span>
+                           </div>
                            <span className="text-[0.65rem] uppercase font-bold text-stone-500 tracking-wider">{area.type}</span>
                         </div>
                         <div className="flex gap-1">
@@ -406,7 +414,7 @@ export default function AdminMapEditor() {
                     : "bg-stone-900/80 text-white border-stone-700 z-30 pointer-events-none"
                 )}
               >
-                {movingItem?.id === area.id ? <span className="flex items-center"><Crosshair className="w-4 h-4 mr-2" /> {area.name}</span> : area.name}
+                {movingItem?.id === area.id ? <span className="flex items-center"><Crosshair className="w-4 h-4 mr-2" /> {area.name} ({beds.filter(b => b.area_id === area.id).length})</span> : `${area.name} (${beds.filter(b => b.area_id === area.id).length})`}
               </div>
             ))}
           </div>
