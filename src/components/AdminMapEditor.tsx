@@ -325,7 +325,7 @@ export default function AdminMapEditor() {
                 {/* Sub Areas List */}
                 <div className="p-3 space-y-2">
                   {areas.filter(a => a.location_id === loc.id).map(area => (
-                    <div key={area.id} className="flex flex-col gap-2 p-3 bg-stone-50 rounded-xl border border-stone-100 hover:border-emerald-200 transition-colors">
+                    <div key={area.id} className="flex flex-col gap-2 p-3 bg-white rounded-xl border border-stone-200 hover:border-emerald-300 shadow-sm transition-colors">
                       <div className="flex items-center justify-between">
                         <div>
                            <div className="flex items-center gap-2">
