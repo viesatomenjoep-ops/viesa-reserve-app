@@ -22,19 +22,21 @@ export default function Header() {
           </div>
 
           {/* Navigation Links & Language Selector */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-3 sm:space-x-6 ml-auto">
             {pathname === '/admin' ? (
-              <Link href="/" className="text-sm font-bold text-stone-500 hover:text-emerald-600 transition-colors">
-                View as Customer &rarr;
+              <Link href="/" className="text-sm font-bold text-stone-500 hover:text-emerald-600 transition-colors whitespace-nowrap">
+                <span className="hidden sm:inline">View as Customer</span>
+                <span className="sm:hidden">Website</span> &rarr;
               </Link>
             ) : (
-              <Link href="/admin" className="text-sm font-bold text-stone-500 hover:text-blue-600 transition-colors">
-                Admin Dashboard &rarr;
+              <Link href="/admin" className="text-sm font-bold text-stone-500 hover:text-blue-600 transition-colors whitespace-nowrap">
+                <span className="hidden sm:inline">Admin Dashboard</span>
+                <span className="sm:hidden">Admin</span> &rarr;
               </Link>
             )}
 
-            <div className="flex items-center space-x-2 border-l border-stone-200 pl-6">
-              <Globe className="w-4 h-4 text-stone-500" />
+            <div className="flex items-center space-x-1 sm:space-x-2 border-l border-stone-200 pl-3 sm:pl-6">
+              <Globe className="w-4 h-4 text-stone-500 hidden sm:block" />
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}

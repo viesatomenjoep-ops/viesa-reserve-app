@@ -308,15 +308,19 @@ export default function AdminMapEditor() {
     <div className="flex flex-col h-[calc(100vh-80px)] font-sans relative bg-white text-black">
       
       {/* Top Header */}
-      <div className="bg-white border-b border-stone-200 p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm z-20 shrink-0">
-        <div className="flex items-center">
-          {venue?.logo_url ? (
-            <img src={venue.logo_url} alt="Venue Logo" className="h-10 w-auto object-contain mr-4 rounded-md" />
-          ) : (
-            <Settings2 className="mr-2 text-emerald-600 h-8 w-8" />
-          )}
-          <div className="flex flex-col justify-center">
-            <div className="flex items-center gap-2">
+      <div className="bg-white border-b border-stone-200 p-4 sm:p-6 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 shadow-sm z-20 shrink-0">
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center w-full xl:w-auto gap-4">
+          <div className="flex items-center">
+            {venue?.logo_url ? (
+              <img src={venue.logo_url} alt="Venue Logo" className="h-12 w-auto object-contain mr-4 rounded-md bg-stone-50 p-1 border border-stone-100" />
+            ) : (
+              <Settings2 className="mr-3 text-emerald-600 h-10 w-10" />
+            )}
+          </div>
+          
+          <div className="flex flex-col w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
               <select 
                 value={venue?.id || ''} 
                 onChange={(e) => {
@@ -326,21 +330,21 @@ export default function AdminMapEditor() {
                     setVenueFormData({ name: selected.name, location_address: selected.location_address || '', map_image_url: selected.map_image_url, logo_url: selected.logo_url || '' });
                   }
                 }}
-                className="text-2xl font-bold text-stone-900 bg-transparent border-none p-0 pr-6 cursor-pointer focus:ring-0 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%231c1917%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-right hover:text-stone-700 transition-colors"
+                className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 bg-transparent border-none p-0 pr-8 cursor-pointer focus:ring-0 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209L12%2015L18%209%22%20stroke%3D%22%231c1917%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-right hover:text-emerald-700 transition-colors w-full sm:w-auto"
                 style={{ backgroundPosition: 'right 0 center' }}
               >
                 {allVenues.map(v => (
-                  <option key={v.id} value={v.id}>{v.name}</option>
+                  <option key={v.id} value={v.id} className="font-sans text-base">{v.name}</option>
                 ))}
               </select>
+              
               <button 
                 onClick={() => {
                   setVenueFormData({ name: 'Nieuwe Beachclub', location_address: '', map_image_url: '', logo_url: '' });
                   setVenue(null);
                   setShowVenueModal(true);
                 }}
-                className="text-xs bg-stone-100 hover:bg-stone-200 text-stone-600 px-2 py-1 rounded font-bold transition-colors shadow-sm ml-2"
-                title="Voeg een extra locatie toe"
+                className="text-sm bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-2 rounded-xl font-bold transition-colors shadow-sm w-full sm:w-auto text-left sm:text-center border border-stone-200"
               >
                 + Beachclub Toevoegen
               </button>
@@ -349,19 +353,19 @@ export default function AdminMapEditor() {
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto">
           <button 
             onClick={() => setShowVenueModal(true)}
-            className="flex items-center px-4 py-3 rounded-xl font-bold bg-stone-100 text-stone-700 hover:bg-stone-200 transition-all shadow-sm border-2 border-transparent"
+            className="flex justify-center items-center px-4 py-3 rounded-xl font-bold bg-stone-100 text-stone-700 hover:bg-stone-200 transition-all shadow-sm border border-stone-200"
           >
             Venue Settings
           </button>
           <button 
             onClick={saveMapPositions}
-            className="flex items-center px-6 py-3 rounded-xl font-bold transition-all shadow-sm border-2 bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-700 hover:scale-105"
+            className="flex justify-center items-center px-6 py-3 rounded-xl font-bold transition-all shadow-sm border-2 bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-700 hover:scale-105"
           >
             <Save className="w-5 h-5 mr-2" />
-            Save Map Positions
+            Save Map
           </button>
         </div>
       </div>
@@ -576,8 +580,8 @@ export default function AdminMapEditor() {
 
       {/* Edit Location */}
       {editingLocation && (
-        <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+        <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold">Edit Main Zone</h3>
               <button onClick={() => setEditingLocation(null)} className="text-stone-400 hover:text-stone-900"><X /></button>
@@ -597,8 +601,8 @@ export default function AdminMapEditor() {
 
       {/* Edit Area */}
       {editingArea && (
-        <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+        <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold">Edit Sub Area</h3>
               <button onClick={() => setEditingArea(null)} className="text-stone-400 hover:text-stone-900"><X /></button>
@@ -628,8 +632,8 @@ export default function AdminMapEditor() {
       {/* Venue Settings Modal */}
       <AnimatePresence>
         {showVenueModal && (
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+          <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">Business Settings</h3>
                 <button onClick={() => setShowVenueModal(false)} className="text-stone-400 hover:text-stone-900"><X /></button>

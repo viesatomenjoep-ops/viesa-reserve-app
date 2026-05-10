@@ -156,7 +156,7 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
           </div>
         </div>
         
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-wrap gap-2 sm:gap-4 items-center justify-start sm:justify-end mt-4 sm:mt-0 w-full sm:w-auto">
           <div className="hidden sm:flex gap-3 text-xs font-bold mr-4">
              <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-1" /> Vrij</div>
              <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-orange-400 mr-1" /> Tot tijdstip</div>
@@ -165,16 +165,16 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
           
           <button 
             onClick={() => setShowBulkModal(true)}
-            className="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold transition-colors shadow-sm"
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold transition-colors shadow-sm text-sm sm:text-base text-center"
           >
             Bulk Create
           </button>
           
           <button 
             onClick={handleAddBed}
-            className="flex items-center px-4 py-2.5 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 rounded-xl font-bold transition-colors shadow-sm"
+            className="flex-1 sm:flex-none flex justify-center items-center px-4 py-2.5 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 rounded-xl font-bold transition-colors shadow-sm text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5 mr-1" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
             Add Bed
           </button>
 
@@ -183,7 +183,7 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
               alert("Bedden Layout succesvol opgeslagen!");
               onBack();
             }}
-            className="flex items-center px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-colors shadow-sm ml-2"
+            className="w-full sm:w-auto flex justify-center items-center px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-colors shadow-sm sm:ml-2 mt-2 sm:mt-0"
           >
             Opslaan
           </button>

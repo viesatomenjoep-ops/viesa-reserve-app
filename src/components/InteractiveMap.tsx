@@ -196,10 +196,10 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
           </div>
         </div>
 
-        {/* Static Grid Container matching Admin */}
-        <div className="overflow-x-auto pb-8">
-          <div className="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-stone-200 min-w-[600px]">
-            <div className="w-full text-center py-2 bg-blue-50 text-blue-800 rounded-xl text-xs font-bold uppercase tracking-widest mb-8">
+        {/* Responsive Grid Container */}
+        <div className="pb-8 w-full">
+          <div className="w-full max-w-5xl mx-auto bg-white p-4 sm:p-10 rounded-2xl shadow-xl border border-stone-200">
+            <div className="w-full text-center py-2 bg-blue-50 text-blue-800 rounded-xl text-xs font-bold uppercase tracking-widest mb-6 sm:mb-8">
               Water Side (Front)
             </div>
 
