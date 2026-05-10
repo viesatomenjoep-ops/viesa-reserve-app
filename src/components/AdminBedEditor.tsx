@@ -65,7 +65,12 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
 
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       const { data } = await supabase.from('beds').insert([newBed]).select().single();
-      if (data) fetchBeds(); 
+      if (data) {
+        fetchBeds();
+        alert("Bed succesvol toegevoegd en opgeslagen!");
+      }
+    } else {
+      alert("Bed toegevoegd! (Mock mode - let op: Vercel mist database sleutels)");
     }
   };
 
@@ -86,6 +91,9 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       await supabase.from('beds').insert(newBeds);
       fetchBeds(); 
+      alert(`${bulkData.count} bedden succesvol gegenereerd en opgeslagen in de database!`);
+    } else {
+      alert(`${bulkData.count} bedden gegenereerd! (Mock mode - let op: Vercel mist database sleutels)`);
     }
     setShowBulkModal(false);
   };
