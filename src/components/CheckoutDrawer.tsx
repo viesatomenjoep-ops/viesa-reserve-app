@@ -7,7 +7,7 @@ import { X, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CheckoutDrawerProps {
-  bed: Bed | null;
+  bed: (Bed & { zone_name?: string }) | null;
   onClose: () => void;
 }
 
@@ -88,7 +88,7 @@ export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
                     <div>
                       <p className="text-sm text-stone-500 uppercase tracking-wider">{t('bedNumber')}</p>
                       <p className="text-3xl font-bold text-stone-900">{bed.name}</p>
-                      <p className="text-stone-600 mt-1">{bed.zone}</p>
+                      <p className="text-stone-600 mt-1">{bed.zone_name}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-stone-500 uppercase tracking-wider">{t('price')}</p>
@@ -164,7 +164,7 @@ export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
                   <div className="bg-stone-50 p-6 rounded-2xl border border-stone-100 space-y-4">
                      <div className="flex justify-between border-b border-stone-200 pb-4">
                        <span className="text-stone-500">{t('bedNumber')}</span>
-                       <span className="font-medium text-stone-900">{bed.name} ({bed.zone})</span>
+                       <span className="font-medium text-stone-900">{bed.name} ({bed.zone_name})</span>
                      </div>
                      <div className="flex justify-between border-b border-stone-200 pb-4">
                        <span className="text-stone-500">{t('selectDate')}</span>
