@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Bed } from './InteractiveMap';
+import type { Bed } from './AdminBedEditor';
 import { useLanguage } from '../contexts/LanguageContext';
 import { X, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

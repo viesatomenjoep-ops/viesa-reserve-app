@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/Header';
-import InteractiveMap, { Bed } from '@/components/InteractiveMap';
+import InteractiveMap from '@/components/InteractiveMap';
+import type { Bed } from '@/components/AdminBedEditor';
 import CheckoutDrawer from '@/components/CheckoutDrawer';
 import { useLanguage } from '@/contexts/LanguageContext';
 

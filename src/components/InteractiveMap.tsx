@@ -70,12 +70,12 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const fetchBedsData = async (areaId: string) => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       setBeds([
-        { id: 'b1', area_id: areaId, name: 'Row 1 - A', price: 50, status: 'AVAILABLE', pos_x: 20, pos_y: 20 },
-        { id: 'b2', area_id: areaId, name: 'Row 1 - B', price: 50, status: 'AVAILABLE', pos_x: 50, pos_y: 20 },
-        { id: 'b3', area_id: areaId, name: 'Row 1 - C', price: 50, status: 'RESERVED', pos_x: 80, pos_y: 20 },
-        { id: 'b4', area_id: areaId, name: 'Row 2 - A', price: 40, status: 'AVAILABLE', pos_x: 20, pos_y: 50 },
-        { id: 'b5', area_id: areaId, name: 'Row 2 - B', price: 40, status: 'BOOKED', pos_x: 50, pos_y: 50 },
-        { id: 'b6', area_id: areaId, name: 'Row 2 - C', price: 40, status: 'AVAILABLE', pos_x: 80, pos_y: 50 },
+        { id: 'b1', area_id: areaId, name: 'Row 1 - A', price: 50, min_spend: 100, status: 'AVAILABLE', pos_x: 20, pos_y: 20 },
+        { id: 'b2', area_id: areaId, name: 'Row 1 - B', price: 50, min_spend: 100, status: 'AVAILABLE', pos_x: 50, pos_y: 20 },
+        { id: 'b3', area_id: areaId, name: 'Row 1 - C', price: 50, min_spend: 100, status: 'PARTIAL', pos_x: 80, pos_y: 20 },
+        { id: 'b4', area_id: areaId, name: 'Row 2 - A', price: 40, min_spend: 80, status: 'AVAILABLE', pos_x: 20, pos_y: 50 },
+        { id: 'b5', area_id: areaId, name: 'Row 2 - B', price: 40, min_spend: 80, status: 'BOOKED', pos_x: 50, pos_y: 50 },
+        { id: 'b6', area_id: areaId, name: 'Row 2 - C', price: 40, min_spend: 80, status: 'AVAILABLE', pos_x: 80, pos_y: 50 },
       ]);
       return;
     }
