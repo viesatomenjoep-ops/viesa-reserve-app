@@ -94,8 +94,8 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'AVAILABLE': return 'bg-emerald-50 hover:bg-emerald-100 border-emerald-500 text-emerald-900 shadow-emerald-500/20';
-      case 'RESERVED': return 'bg-orange-100 border-orange-400 text-orange-900 opacity-80 cursor-not-allowed';
-      case 'BOOKED': return 'bg-stone-200 border-stone-400 text-stone-500 opacity-60 cursor-not-allowed';
+      case 'PARTIAL': return 'bg-orange-50 hover:bg-orange-100 border-orange-400 text-orange-900 shadow-orange-400/20';
+      case 'BOOKED': return 'bg-stone-200 border-red-400 text-red-900 opacity-60 cursor-not-allowed';
       default: return 'bg-stone-100 border-stone-300';
     }
   };
@@ -117,8 +117,8 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
           </div>
           <div className="flex gap-4 text-sm font-medium">
             <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div> {t('available')}</div>
-            <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-orange-400 mr-2"></div> {t('reserved')}</div>
-            <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-stone-400 mr-2"></div> {t('booked')}</div>
+            <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-orange-400 mr-2"></div> Partial</div>
+            <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div> Booked</div>
           </div>
         </div>
 
@@ -133,16 +133,17 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
           {beds.map((bed) => (
             <button
               key={bed.id}
-              onClick={() => bed.status === 'AVAILABLE' && onBedSelect(bed)}
-              disabled={bed.status !== 'AVAILABLE'}
+              onClick={() => (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && onBedSelect(bed)}
+              disabled={bed.status === 'BOOKED'}
               style={{ left: `${bed.pos_x}%`, top: `${bed.pos_y}%`, position: 'absolute', transform: 'translate(-50%, -50%)' }}
               className={clsx(
                 "w-16 h-16 sm:w-20 sm:h-20 border-2 rounded-2xl flex flex-col items-center justify-center shadow-md transition-all duration-300",
                 getStatusColor(bed.status),
-                bed.status === 'AVAILABLE' && "hover:scale-110 active:scale-95"
+                (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && "hover:scale-110 active:scale-95"
               )}
             >
-              <span className="font-bold text-lg">{bed.name}</span>
+              <span className="font-bold text-sm sm:text-base truncate px-1">{bed.name}</span>
+              {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600">Until {bed.reserved_until}</span>}
               <span className="text-xs font-medium opacity-80">€{bed.price}</span>
             </button>
           ))}
