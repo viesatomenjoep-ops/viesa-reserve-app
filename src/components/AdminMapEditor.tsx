@@ -570,6 +570,14 @@ export default function AdminMapEditor() {
                       />
                     </label>
                   </div>
+                  
+                  <div className="flex items-center gap-2 mb-1">
+                    <hr className="flex-1 border-stone-200" />
+                    <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">OF PLAK EEN LINK</span>
+                    <hr className="flex-1 border-stone-200" />
+                  </div>
+                  <input type="text" value={venueFormData.logo_url} onChange={(e) => setVenueFormData({...venueFormData, logo_url: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="https://jouw-website.nl/logo.png" />
+
                   {venueFormData.logo_url && (
                     <div className="mt-2 p-2 bg-stone-100 border border-stone-200 rounded-lg flex items-center justify-center">
                       <img src={venueFormData.logo_url} className="h-12 object-contain" alt="Logo preview" />
