@@ -201,16 +201,16 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
           <p className="text-stone-500 text-sm">Choose your preferred spot at the beach club.</p>
         </div>
 
-        <div className="flex bg-stone-100 p-1 rounded-xl self-stretch sm:self-auto">
+        <div className="flex bg-white border border-stone-200 p-1 rounded-xl self-stretch sm:self-auto shadow-sm">
           <button 
             onClick={() => setViewMode('LIST')}
-            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'LIST' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
+            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'LIST' ? "bg-black text-white shadow-sm" : "text-stone-500 hover:text-black")}
           >
             <List className="w-4 h-4 mr-2" /> List View
           </button>
           <button 
             onClick={() => setViewMode('MAP')}
-            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'MAP' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
+            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'MAP' ? "bg-black text-white shadow-sm" : "text-stone-500 hover:text-black")}
           >
             <MapIcon className="w-4 h-4 mr-2" /> Map View
           </button>
@@ -224,25 +224,25 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
             const locAreas = areas.filter(a => a.location_id === loc.id);
             if (locAreas.length === 0) return null;
             return (
-              <div key={loc.id} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-100">
-                <h3 className="text-xl font-serif font-bold text-stone-900 mb-4">{loc.name.replace('Zone ', 'Zone ')}</h3>
+              <div key={loc.id} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200">
+                <h3 className="text-xl font-serif font-bold text-black mb-4">{loc.name.replace('Zone ', 'Zone ')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {locAreas.map(area => (
                     <button
                       key={area.id}
                       onClick={() => setActiveArea(area)}
-                      className="flex items-center justify-between p-4 rounded-2xl border-2 border-stone-100 hover:border-emerald-500 hover:bg-emerald-50 hover:shadow-md transition-all text-left group"
+                      className="flex items-center justify-between p-4 rounded-2xl border border-stone-200 hover:border-black hover:shadow-lg transition-all text-left group bg-white"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="p-3 bg-stone-100 rounded-xl group-hover:bg-white transition-colors">
+                        <div className="p-3 bg-white border border-stone-100 rounded-xl group-hover:border-black transition-colors">
                           {getAreaIcon(area.type)}
                         </div>
                         <div>
-                          <p className="font-bold text-stone-900">{area.name}</p>
-                          <p className="text-xs text-stone-500 uppercase tracking-wider">{area.type}</p>
+                          <p className="font-bold text-black">{area.name}</p>
+                          <p className="text-xs text-stone-500 uppercase tracking-wider font-bold">{area.type}</p>
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-emerald-500 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-black transition-colors" />
                     </button>
                   ))}
                 </div>
