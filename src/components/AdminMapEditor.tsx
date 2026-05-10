@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Move, MapPin, Grid, X, Settings2, Trash2 } from 'lucide-react';
+import { Plus, Move, Grid, X, Settings2, Edit3, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import AdminBedEditor from './AdminBedEditor';
 
@@ -31,10 +31,14 @@ export default function AdminMapEditor() {
   
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   
-  // Modals state
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', type: 'BEDS' });
+
+  // New states for editing existing items
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [editingArea, setEditingArea] = useState<Area | null>(null);
+
   const [isMapLocked, setIsMapLocked] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -88,19 +92,23 @@ export default function AdminMapEditor() {
   };
 
   const handleDeleteLocation = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this entire Zone and all its sub-areas?")) return;
+    if (!confirm("Are you sure you want to delete this entire Zone and ALL its beds?")) return;
     setLocations(prev => prev.filter(l => l.id !== id));
     setAreas(prev => prev.filter(a => a.location_id !== id));
-    setSelectedLocation(null);
-    setEditMode('LOCATIONS');
+    if (selectedLocation?.id === id) {
+      setSelectedLocation(null);
+      setEditMode('LOCATIONS');
+    }
+    setEditingLocation(null);
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       await supabase.from('locations').delete().eq('id', id);
     }
   };
 
   const handleDeleteArea = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this Sub-Area and all its beds?")) return;
+    if (!confirm("Are you sure you want to delete this Sub-Area and ALL its beds?")) return;
     setAreas(prev => prev.filter(a => a.id !== id));
+    setEditingArea(null);
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       await supabase.from('areas').delete().eq('id', id);
     }
@@ -109,10 +117,7 @@ export default function AdminMapEditor() {
   const handleSaveLocation = async () => {
     if (!formData.name) return;
     const newLoc: Omit<Location, 'id'> = { name: formData.name, pos_x: 50, pos_y: 50 };
-    
-    // Mock update
     setLocations([...locations, { ...newLoc, id: Math.random().toString() }]);
-    
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       const { data } = await supabase.from('locations').insert([newLoc]).select().single();
       if (data) fetchData();
@@ -121,13 +126,19 @@ export default function AdminMapEditor() {
     setFormData({ name: '', type: 'BEDS' });
   };
 
+  const handleUpdateLocation = async () => {
+    if (!editingLocation) return;
+    setLocations(prev => prev.map(loc => loc.id === editingLocation.id ? editingLocation : loc));
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      await supabase.from('locations').update({ name: editingLocation.name }).eq('id', editingLocation.id);
+    }
+    setEditingLocation(null);
+  };
+
   const handleSaveArea = async () => {
     if (!formData.name || !selectedLocation) return;
     const newArea: Omit<Area, 'id'> = { location_id: selectedLocation.id, name: formData.name, type: formData.type, pos_x: 50, pos_y: 50 };
-    
-    // Mock update
     setAreas([...areas, { ...newArea, id: Math.random().toString() }]);
-
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       const { data } = await supabase.from('areas').insert([newArea]).select().single();
       if (data) fetchData();
@@ -136,24 +147,30 @@ export default function AdminMapEditor() {
     setFormData({ name: '', type: 'BEDS' });
   };
 
+  const handleUpdateArea = async () => {
+    if (!editingArea) return;
+    setAreas(prev => prev.map(a => a.id === editingArea.id ? editingArea : a));
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      await supabase.from('areas').update({ name: editingArea.name, type: editingArea.type }).eq('id', editingArea.id);
+    }
+    setEditingArea(null);
+  };
+
   if (activeArea) {
     return <AdminBedEditor area={activeArea} onBack={() => setActiveArea(null)} onDeleteArea={() => { handleDeleteArea(activeArea.id); setActiveArea(null); }} />;
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] font-sans relative">
-      
-      {/* Control Panel */}
       <div className="bg-white border-b border-stone-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm z-10">
         <div>
           <h1 className="text-2xl font-bold text-stone-900 flex items-center">
             <Settings2 className="mr-2 text-emerald-600" /> Admin Map Builder
           </h1>
-          <p className="text-stone-500 text-sm mt-1">Create unlimited zones and sub-areas.</p>
+          <p className="text-stone-500 text-sm mt-1">Create and fully edit your zones and sub-areas.</p>
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Unlock Map Toggle */}
           <button 
             onClick={() => setIsMapLocked(!isMapLocked)}
             className={clsx("flex items-center px-4 py-2 rounded-lg font-bold text-sm transition-colors border-2", isMapLocked ? "bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200" : "bg-red-50 text-red-600 border-red-300 animate-pulse")}
@@ -174,12 +191,6 @@ export default function AdminMapEditor() {
               className={clsx("px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2", editMode === 'AREAS' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700 disabled:opacity-30")}
             >
               2. Edit Areas {selectedLocation && `(${selectedLocation.name})`}
-              {selectedLocation && editMode === 'AREAS' && (
-                <Trash2 
-                  className="w-4 h-4 text-red-400 hover:text-red-600 ml-2" 
-                  onClick={(e) => { e.stopPropagation(); handleDeleteLocation(selectedLocation.id); }}
-                />
-              )}
             </button>
           </div>
 
@@ -194,7 +205,6 @@ export default function AdminMapEditor() {
         </div>
       </div>
 
-      {/* Editor Canvas */}
       <div className="flex-1 bg-stone-200 p-4 sm:p-8 overflow-hidden flex justify-center items-center">
         <div 
           ref={containerRef}
@@ -203,7 +213,6 @@ export default function AdminMapEditor() {
         >
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
 
-          {/* Zones (Locations) */}
           {locations.map((loc) => (
             <motion.div
               key={`loc-${loc.id}`}
@@ -218,18 +227,26 @@ export default function AdminMapEditor() {
               }}
               style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
               className={clsx(
-                "w-20 h-20 rounded-full flex flex-col items-center justify-center transition-all",
+                "w-20 h-20 rounded-full flex flex-col items-center justify-center transition-all group",
                 !isMapLocked ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
                 selectedLocation?.id === loc.id 
                   ? "bg-emerald-500/30 border-4 border-emerald-500 z-30 scale-110" 
                   : "bg-transparent border-2 border-dashed border-stone-800/50 z-20 hover:bg-white/20"
               )}
             >
-              {!isMapLocked && <Move className="w-5 h-5 opacity-0 hover:opacity-100 absolute text-stone-900" />}
+              {!isMapLocked && <Move className="w-5 h-5 opacity-0 hover:opacity-100 absolute text-stone-900 pointer-events-none" />}
+              {isMapLocked && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setEditingLocation(loc); }}
+                  className="absolute -top-3 -right-3 bg-stone-900 hover:bg-emerald-600 text-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Edit Zone Details"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+              )}
             </motion.div>
           ))}
 
-          {/* Sub-Areas */}
           {areas.filter(a => selectedLocation ? a.location_id === selectedLocation.id : true).map((area) => (
             <motion.div
               key={`area-${area.id}`}
@@ -239,7 +256,7 @@ export default function AdminMapEditor() {
               onDragEnd={(e, info) => handleDragEnd(area.id, 'AREA', info)}
               style={{ left: `${area.pos_x}%`, top: `${area.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
               className={clsx(
-                "px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap flex items-center gap-2 transition-colors",
+                "px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap flex items-center gap-2 transition-colors group",
                 !isMapLocked && editMode === 'AREAS' && selectedLocation?.id === area.location_id ? "cursor-grab active:cursor-grabbing" : "cursor-default",
                 editMode === 'AREAS' && selectedLocation?.id === area.location_id
                   ? "bg-stone-900 text-white border-stone-700 z-40 hover:bg-stone-800" 
@@ -249,14 +266,25 @@ export default function AdminMapEditor() {
               {area.name}
               {editMode === 'AREAS' && selectedLocation?.id === area.location_id && (
                 <>
-                  {!isMapLocked && <Move className="w-3 h-3 text-stone-400" />}
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setActiveArea(area); }}
-                    className="ml-2 bg-emerald-500 hover:bg-emerald-400 text-white p-1 rounded-md transition-colors"
-                    title="Edit Beds (Stadium Planner)"
-                  >
-                    <Grid className="w-3 h-3" />
-                  </button>
+                  {!isMapLocked && <Move className="w-3 h-3 text-stone-400 pointer-events-none" />}
+                  {isMapLocked && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setEditingArea(area); }}
+                      className="ml-1 bg-stone-700 hover:bg-stone-600 text-white p-1 rounded-md transition-colors"
+                      title="Edit Area Name & Type"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                    </button>
+                  )}
+                  {isMapLocked && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveArea(area); }}
+                      className="ml-1 bg-emerald-500 hover:bg-emerald-400 text-white p-1 rounded-md transition-colors"
+                      title="Edit Beds (Stadium Planner)"
+                    >
+                      <Grid className="w-3 h-3" />
+                    </button>
+                  )}
                 </>
               )}
             </motion.div>
@@ -264,7 +292,68 @@ export default function AdminMapEditor() {
         </div>
       </div>
 
-      {/* Add Location Modal */}
+      {/* Edit Location Modal */}
+      {editingLocation && (
+        <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">Edit Main Zone</h3>
+              <button onClick={() => setEditingLocation(null)} className="text-stone-400 hover:text-stone-900"><X /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-1">Zone Name</label>
+                <input type="text" value={editingLocation.name} onChange={(e) => setEditingLocation({...editingLocation, name: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6">
+              <button onClick={() => handleDeleteLocation(editingLocation.id)} className="flex items-center justify-center flex-1 py-3 bg-red-100 text-red-700 rounded-xl font-bold hover:bg-red-200 transition-colors">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </button>
+              <button onClick={handleUpdateLocation} className="flex-1 py-3 bg-stone-900 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Area Modal */}
+      {editingArea && (
+        <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">Edit Sub-Area</h3>
+              <button onClick={() => setEditingArea(null)} className="text-stone-400 hover:text-stone-900"><X /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-1">Area Name</label>
+                <input type="text" value={editingArea.name} onChange={(e) => setEditingArea({...editingArea, name: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-1">Type of Area</label>
+                <select value={editingArea.type} onChange={(e) => setEditingArea({...editingArea, type: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                  <option value="BEDS">Beds</option>
+                  <option value="HAMMOCKS">Hammocks</option>
+                  <option value="VIP">VIP Lounge</option>
+                  <option value="RESTAURANT">Restaurant Tables</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6">
+              <button onClick={() => handleDeleteArea(editingArea.id)} className="flex items-center justify-center flex-1 py-3 bg-red-100 text-red-700 rounded-xl font-bold hover:bg-red-200 transition-colors">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </button>
+              <button onClick={handleUpdateArea} className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE MODALS (Already existed, untouched logical flow) */}
       <AnimatePresence>
         {showLocationModal && (
           <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -284,8 +373,6 @@ export default function AdminMapEditor() {
           </div>
         )}
       </AnimatePresence>
-
-      {/* Add Sub-Area Modal */}
       <AnimatePresence>
         {showAreaModal && selectedLocation && (
           <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
