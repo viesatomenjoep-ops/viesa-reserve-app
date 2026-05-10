@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 import { clsx } from 'clsx';
-import { Info, MapPin, ArrowLeft } from 'lucide-react';
+import { Info, Map as MapIcon, List, ArrowLeft, ChevronRight, Palmtree, UtensilsCrossed, BedDouble, MapPin } from 'lucide-react';
 import { Bed } from './AdminBedEditor';
 
 export interface Location {
@@ -34,6 +34,9 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
+  
+  // Mobile-first: Default to LIST view. User can toggle to MAP.
+  const [viewMode, setViewMode] = useState<'LIST' | 'MAP'>('LIST');
 
   useEffect(() => {
     fetchMapData();
@@ -82,7 +85,6 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
     const { data } = await supabase.from('beds').select('*').eq('area_id', areaId);
     if (data) setBeds(data as Bed[]);
 
-    // Subscribe to beds changes for realtime green/orange/red updates
     const channel = supabase.channel('schema-db-changes')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'beds' }, (payload) => {
         setBeds(current => current.map(b => b.id === payload.new.id ? { ...b, ...payload.new } : b));
@@ -100,111 +102,190 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
     }
   };
 
+  const getAreaIcon = (type: string) => {
+    switch (type) {
+      case 'RESTAURANT': return <UtensilsCrossed className="w-5 h-5 text-stone-500" />;
+      case 'HAMMOCKS': return <Palmtree className="w-5 h-5 text-emerald-600" />;
+      case 'BEDS': return <BedDouble className="w-5 h-5 text-blue-600" />;
+      default: return <MapPin className="w-5 h-5 text-stone-500" />;
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // RENDER: STADIUM GRID SELECTION (Once an area is chosen)
+  // ---------------------------------------------------------------------------
   if (activeArea) {
     return (
-      <div className="w-full max-w-4xl mx-auto my-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="w-full max-w-4xl mx-auto my-8 px-4 sm:px-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <button 
           onClick={() => setActiveArea(null)}
           className="flex items-center text-stone-500 hover:text-stone-900 mb-6 font-medium transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Map
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Zones
         </button>
 
-        <div className="flex justify-between items-end mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 gap-4">
           <div>
             <h2 className="text-3xl font-serif font-bold text-stone-900">{activeArea.name}</h2>
             <p className="text-stone-500">Select a bed to continue your reservation.</p>
           </div>
-          <div className="flex gap-4 text-sm font-medium">
+          <div className="flex flex-wrap gap-4 text-sm font-medium">
             <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div> {t('available')}</div>
             <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-orange-400 mr-2"></div> Partial</div>
             <div className="flex items-center"><div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div> Booked</div>
           </div>
         </div>
 
-        <div 
-          className="relative w-full aspect-[4/3] bg-white rounded-3xl shadow-xl overflow-hidden border border-stone-200"
-          style={{ backgroundImage: "linear-gradient(#f5f5f4 1px, transparent 1px), linear-gradient(90deg, #f5f5f4 1px, transparent 1px)", backgroundSize: "40px 40px" }}
-        >
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-50 text-blue-800 rounded-full text-xs font-bold uppercase tracking-widest pointer-events-none">
-            Water Side (Front)
-          </div>
+        {/* Stadium Grid Container with horizontal scroll for small screens if needed */}
+        <div className="overflow-x-auto pb-8">
+          <div 
+            className="relative w-full min-w-[600px] aspect-[4/3] bg-white rounded-3xl shadow-xl overflow-hidden border border-stone-200"
+            style={{ backgroundImage: "linear-gradient(#f5f5f4 1px, transparent 1px), linear-gradient(90deg, #f5f5f4 1px, transparent 1px)", backgroundSize: "40px 40px" }}
+          >
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-50 text-blue-800 rounded-full text-xs font-bold uppercase tracking-widest pointer-events-none">
+              Water Side (Front)
+            </div>
 
-          {beds.map((bed) => (
-            <button
-              key={bed.id}
-              onClick={() => (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && onBedSelect(bed)}
-              disabled={bed.status === 'BOOKED'}
-              style={{ left: `${bed.pos_x}%`, top: `${bed.pos_y}%`, position: 'absolute', transform: 'translate(-50%, -50%)' }}
-              className={clsx(
-                "w-16 h-16 sm:w-20 sm:h-20 border-2 rounded-2xl flex flex-col items-center justify-center shadow-md transition-all duration-300",
-                getStatusColor(bed.status),
-                (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && "hover:scale-110 active:scale-95"
-              )}
-            >
-              <span className="font-bold text-sm sm:text-base truncate px-1">{bed.name}</span>
-              {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600">Until {bed.reserved_until}</span>}
-              <span className="text-xs font-medium opacity-80">€{bed.price}</span>
-            </button>
-          ))}
+            {beds.map((bed) => (
+              <button
+                key={bed.id}
+                onClick={() => (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && onBedSelect(bed)}
+                disabled={bed.status === 'BOOKED'}
+                style={{ left: `${bed.pos_x}%`, top: `${bed.pos_y}%`, position: 'absolute', transform: 'translate(-50%, -50%)' }}
+                className={clsx(
+                  "w-16 h-16 sm:w-20 sm:h-20 border-2 rounded-2xl flex flex-col items-center justify-center shadow-md transition-all duration-300",
+                  getStatusColor(bed.status),
+                  (bed.status === 'AVAILABLE' || bed.status === 'PARTIAL') && "hover:scale-110 active:scale-95"
+                )}
+              >
+                <span className="font-bold text-sm sm:text-base truncate px-1">{bed.name}</span>
+                {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600">Until {bed.reserved_until}</span>}
+                <span className="text-xs font-medium opacity-80">€{bed.price}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // RENDER: ZONE / AREA SELECTION (List or Map)
+  // ---------------------------------------------------------------------------
   return (
-    <div className="w-full max-w-5xl mx-auto my-8 relative animate-in fade-in zoom-in-95 duration-500">
-      <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 bg-stone-300"
-           style={{ backgroundImage: "url('/calabassa-map.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        
-        {/* Missing Image Placeholder Overlay */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+    <div className="w-full max-w-5xl mx-auto my-8 px-4 sm:px-0 relative animate-in fade-in zoom-in-95 duration-500">
+      
+      {/* Top Toggle Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900">Select a Location</h2>
+          <p className="text-stone-500 text-sm">Choose your preferred spot at the beach club.</p>
+        </div>
 
-        {/* Zones (Locations) */}
-        {locations.map((loc) => (
-          <div
-            key={loc.id}
-            onMouseEnter={() => setHoveredLocation(loc.id)}
-            onMouseLeave={() => setHoveredLocation(null)}
-            style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%` }}
-            className={clsx(
-              "absolute -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex flex-col items-center justify-center shadow-lg transition-all duration-300 border-4 cursor-default",
-              hoveredLocation === loc.id || areas.some(a => a.location_id === loc.id && a.id === hoveredLocation)
-                ? "bg-stone-900 border-white text-white z-20 scale-110" 
-                : "bg-white/90 border-stone-800 text-stone-900 z-10"
-            )}
+        <div className="flex bg-stone-100 p-1 rounded-xl self-stretch sm:self-auto">
+          <button 
+            onClick={() => setViewMode('LIST')}
+            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'LIST' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
           >
-            <span className="font-serif text-xl font-bold">{loc.name.replace('Zone ', '')}</span>
-          </div>
-        ))}
+            <List className="w-4 h-4 mr-2" /> List View
+          </button>
+          <button 
+            onClick={() => setViewMode('MAP')}
+            className={clsx("flex-1 sm:flex-none flex justify-center items-center px-6 py-2.5 rounded-lg font-medium transition-all text-sm", viewMode === 'MAP' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
+          >
+            <MapIcon className="w-4 h-4 mr-2" /> Map View
+          </button>
+        </div>
+      </div>
 
-        {/* Sub-Areas */}
-        {areas.map((area) => {
-          const isHovered = hoveredLocation === area.location_id || hoveredLocation === area.id;
-          return (
-            <button
-              key={area.id}
-              onMouseEnter={() => setHoveredLocation(area.id)}
+      {viewMode === 'LIST' ? (
+        // Mobile-Friendly List View
+        <div className="space-y-8">
+          {locations.map(loc => {
+            const locAreas = areas.filter(a => a.location_id === loc.id);
+            if (locAreas.length === 0) return null;
+            return (
+              <div key={loc.id} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-100">
+                <h3 className="text-xl font-serif font-bold text-stone-900 mb-4">{loc.name.replace('Zone ', 'Zone ')}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {locAreas.map(area => (
+                    <button
+                      key={area.id}
+                      onClick={() => setActiveArea(area)}
+                      className="flex items-center justify-between p-4 rounded-2xl border-2 border-stone-100 hover:border-emerald-500 hover:bg-emerald-50 hover:shadow-md transition-all text-left group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-stone-100 rounded-xl group-hover:bg-white transition-colors">
+                          {getAreaIcon(area.type)}
+                        </div>
+                        <div>
+                          <p className="font-bold text-stone-900">{area.name}</p>
+                          <p className="text-xs text-stone-500 uppercase tracking-wider">{area.type}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-emerald-500 transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        // Desktop-Friendly Interactive Map
+        <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 bg-stone-300"
+             style={{ backgroundImage: "url('/calabassa-map.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+
+          {/* Zones */}
+          {locations.map((loc) => (
+            <div
+              key={loc.id}
+              onMouseEnter={() => setHoveredLocation(loc.id)}
               onMouseLeave={() => setHoveredLocation(null)}
-              onClick={() => setActiveArea(area)}
-              style={{ left: `${area.pos_x}%`, top: `${area.pos_y}%` }}
+              style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%` }}
               className={clsx(
-                "absolute -translate-x-1/2 -translate-y-1/2 px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap transition-all duration-300 flex items-center",
-                isHovered
-                  ? "bg-emerald-600 text-white border-white z-40 scale-110 hover:bg-emerald-500" 
-                  : "bg-stone-900/80 text-white/90 border-transparent z-30 hover:scale-105"
+                "absolute -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex flex-col items-center justify-center shadow-lg transition-all duration-300 border-4 cursor-default",
+                hoveredLocation === loc.id || areas.some(a => a.location_id === loc.id && a.id === hoveredLocation)
+                  ? "bg-stone-900 border-white text-white z-20 scale-110" 
+                  : "bg-white/90 border-stone-800 text-stone-900 z-10"
               )}
             >
-              {area.name}
-            </button>
-          );
-        })}
-      </div>
+              <span className="font-serif text-xl font-bold">{loc.name.replace('Zone ', '')}</span>
+            </div>
+          ))}
+
+          {/* Areas */}
+          {areas.map((area) => {
+            const isHovered = hoveredLocation === area.location_id || hoveredLocation === area.id;
+            return (
+              <button
+                key={area.id}
+                onMouseEnter={() => setHoveredLocation(area.id)}
+                onMouseLeave={() => setHoveredLocation(null)}
+                onClick={() => setActiveArea(area)}
+                style={{ left: `${area.pos_x}%`, top: `${area.pos_y}%` }}
+                className={clsx(
+                  "absolute -translate-x-1/2 -translate-y-1/2 px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap transition-all duration-300 flex items-center",
+                  isHovered
+                    ? "bg-emerald-600 text-white border-white z-40 scale-110 hover:bg-emerald-500" 
+                    : "bg-stone-900/80 text-white/90 border-transparent z-30 hover:scale-105"
+                )}
+              >
+                {area.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
       
-      <div className="mt-6 flex items-start text-stone-600 text-sm bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
-        <Info className="w-5 h-5 mr-3 flex-shrink-0 text-stone-400 mt-0.5" />
-        <p>Explore the beach club map. Hover over a zone to highlight it, and click on any specific area (e.g. "Camas Chiringo") to view the available beds and make a reservation.</p>
-      </div>
+      {viewMode === 'MAP' && (
+        <div className="mt-6 flex items-start text-stone-600 text-sm bg-white p-5 rounded-2xl shadow-sm border border-stone-100 hidden sm:flex">
+          <Info className="w-5 h-5 mr-3 flex-shrink-0 text-stone-400 mt-0.5" />
+          <p>Explore the beach club map. Hover over a zone to highlight it, and click on any specific area (e.g. "Camas Chiringo") to view the available beds and make a reservation.</p>
+        </div>
+      )}
     </div>
   );
 }
