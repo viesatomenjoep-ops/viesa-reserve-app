@@ -156,6 +156,7 @@ export default function AdminBedEditor({ area, onBack }: AdminBedEditorProps) {
                   <button 
                     onClick={(e) => { e.stopPropagation(); setEditingBed(bed); }}
                     className="absolute -right-2 -top-2 bg-stone-900 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-emerald-600 z-10 shadow-lg"
+                    title="Edit details & price"
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>
@@ -163,6 +164,28 @@ export default function AdminBedEditor({ area, onBack }: AdminBedEditorProps) {
                   <span className="font-bold text-sm sm:text-base text-center px-2">{bed.name}</span>
                   {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600 mt-1">Tot {bed.reserved_until}</span>}
                   <span className="text-xs opacity-70 mt-1 font-medium">€{bed.price}</span>
+
+                  {/* iPad Quick Actions for Staff */}
+                  <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                    <button 
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setBeds(prev => prev.map(b => b.id === bed.id ? { ...b, status: 'AVAILABLE' } : b));
+                        if (process.env.NEXT_PUBLIC_SUPABASE_URL) await supabase.from('beds').update({ status: 'AVAILABLE', reserved_until: null }).eq('id', bed.id);
+                      }}
+                      className="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white shadow-md hover:scale-110 transition-transform"
+                      title="Set to Available"
+                    />
+                    <button 
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setBeds(prev => prev.map(b => b.id === bed.id ? { ...b, status: 'BOOKED' } : b));
+                        if (process.env.NEXT_PUBLIC_SUPABASE_URL) await supabase.from('beds').update({ status: 'BOOKED' }).eq('id', bed.id);
+                      }}
+                      className="w-6 h-6 rounded-full bg-red-500 border-2 border-white shadow-md hover:scale-110 transition-transform"
+                      title="Set to Booked"
+                    />
+                  </div>
                 </div>
               ))}
             </div>

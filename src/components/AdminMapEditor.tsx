@@ -35,6 +35,7 @@ export default function AdminMapEditor() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', type: 'BEDS' });
+  const [isMapLocked, setIsMapLocked] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +69,7 @@ export default function AdminMapEditor() {
   };
 
   const handleDragEnd = async (id: string, type: 'LOCATION' | 'AREA', info: any) => {
-    if (!containerRef.current) return;
+    if (isMapLocked || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const xPct = Math.max(0, Math.min(100, ((info.point.x - rect.left) / rect.width) * 100));
     const yPct = Math.max(0, Math.min(100, ((info.point.y - rect.top) / rect.height) * 100));
@@ -83,6 +84,25 @@ export default function AdminMapEditor() {
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
         await supabase.from('areas').update({ pos_x: xPct, pos_y: yPct }).eq('id', id);
       }
+    }
+  };
+
+  const handleDeleteLocation = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this entire Zone and all its sub-areas?")) return;
+    setLocations(prev => prev.filter(l => l.id !== id));
+    setAreas(prev => prev.filter(a => a.location_id !== id));
+    setSelectedLocation(null);
+    setEditMode('LOCATIONS');
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      await supabase.from('locations').delete().eq('id', id);
+    }
+  };
+
+  const handleDeleteArea = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this Sub-Area and all its beds?")) return;
+    setAreas(prev => prev.filter(a => a.id !== id));
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      await supabase.from('areas').delete().eq('id', id);
     }
   };
 
@@ -117,7 +137,7 @@ export default function AdminMapEditor() {
   };
 
   if (activeArea) {
-    return <AdminBedEditor area={activeArea} onBack={() => setActiveArea(null)} />;
+    return <AdminBedEditor area={activeArea} onBack={() => setActiveArea(null)} onDeleteArea={() => { handleDeleteArea(activeArea.id); setActiveArea(null); }} />;
   }
 
   return (
@@ -129,33 +149,49 @@ export default function AdminMapEditor() {
           <h1 className="text-2xl font-bold text-stone-900 flex items-center">
             <Settings2 className="mr-2 text-emerald-600" /> Admin Map Builder
           </h1>
-          <p className="text-stone-500 text-sm mt-1">Create unlimited zones and sub-areas. Drag them onto the physical locations of the map.</p>
+          <p className="text-stone-500 text-sm mt-1">Create unlimited zones and sub-areas.</p>
         </div>
         
-        <div className="flex bg-stone-100 p-1 rounded-xl">
+        <div className="flex items-center gap-4">
+          {/* Unlock Map Toggle */}
           <button 
-            onClick={() => { setEditMode('LOCATIONS'); setSelectedLocation(null); }}
-            className={clsx("px-6 py-2.5 rounded-lg font-medium transition-all", editMode === 'LOCATIONS' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
+            onClick={() => setIsMapLocked(!isMapLocked)}
+            className={clsx("flex items-center px-4 py-2 rounded-lg font-bold text-sm transition-colors border-2", isMapLocked ? "bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200" : "bg-red-50 text-red-600 border-red-300 animate-pulse")}
           >
-            1. Edit Main Zones
+            {isMapLocked ? "Map is Locked (Safe)" : "Unlock Mode: You can drag items"}
           </button>
+
+          <div className="flex bg-stone-100 p-1 rounded-xl">
+            <button 
+              onClick={() => { setEditMode('LOCATIONS'); setSelectedLocation(null); }}
+              className={clsx("px-6 py-2.5 rounded-lg font-medium transition-all", editMode === 'LOCATIONS' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700")}
+            >
+              1. Edit Main Zones
+            </button>
+            <button 
+              onClick={() => setEditMode('AREAS')}
+              disabled={!selectedLocation}
+              className={clsx("px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2", editMode === 'AREAS' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700 disabled:opacity-30")}
+            >
+              2. Edit Areas {selectedLocation && `(${selectedLocation.name})`}
+              {selectedLocation && editMode === 'AREAS' && (
+                <Trash2 
+                  className="w-4 h-4 text-red-400 hover:text-red-600 ml-2" 
+                  onClick={(e) => { e.stopPropagation(); handleDeleteLocation(selectedLocation.id); }}
+                />
+              )}
+            </button>
+          </div>
+
           <button 
-            onClick={() => setEditMode('AREAS')}
-            disabled={!selectedLocation}
-            className={clsx("px-6 py-2.5 rounded-lg font-medium transition-all", editMode === 'AREAS' ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700 disabled:opacity-30")}
+            onClick={() => editMode === 'LOCATIONS' ? setShowLocationModal(true) : setShowAreaModal(true)}
+            disabled={editMode === 'AREAS' && !selectedLocation}
+            className="flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors shadow-sm"
           >
-            2. Edit Areas {selectedLocation && `(${selectedLocation.name})`}
+            <Plus className="w-5 h-5 mr-1" />
+            Add {editMode === 'LOCATIONS' ? 'Main Zone' : 'Sub-Area'}
           </button>
         </div>
-
-        <button 
-          onClick={() => editMode === 'LOCATIONS' ? setShowLocationModal(true) : setShowAreaModal(true)}
-          disabled={editMode === 'AREAS' && !selectedLocation}
-          className="flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors shadow-sm"
-        >
-          <Plus className="w-5 h-5 mr-1" />
-          Add {editMode === 'LOCATIONS' ? 'Main Zone' : 'Sub-Area'}
-        </button>
       </div>
 
       {/* Editor Canvas */}
@@ -171,7 +207,7 @@ export default function AdminMapEditor() {
           {locations.map((loc) => (
             <motion.div
               key={`loc-${loc.id}`}
-              drag
+              drag={!isMapLocked}
               dragConstraints={containerRef}
               dragMomentum={false}
               onDragEnd={(e, info) => handleDragEnd(loc.id, 'LOCATION', info)}
@@ -182,13 +218,14 @@ export default function AdminMapEditor() {
               }}
               style={{ left: `${loc.pos_x}%`, top: `${loc.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
               className={clsx(
-                "w-20 h-20 rounded-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-all",
+                "w-20 h-20 rounded-full flex flex-col items-center justify-center transition-all",
+                !isMapLocked ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
                 selectedLocation?.id === loc.id 
                   ? "bg-emerald-500/30 border-4 border-emerald-500 z-30 scale-110" 
                   : "bg-transparent border-2 border-dashed border-stone-800/50 z-20 hover:bg-white/20"
               )}
             >
-              <Move className="w-5 h-5 opacity-0 hover:opacity-100 absolute text-stone-900" />
+              {!isMapLocked && <Move className="w-5 h-5 opacity-0 hover:opacity-100 absolute text-stone-900" />}
             </motion.div>
           ))}
 
@@ -196,22 +233,23 @@ export default function AdminMapEditor() {
           {areas.filter(a => selectedLocation ? a.location_id === selectedLocation.id : true).map((area) => (
             <motion.div
               key={`area-${area.id}`}
-              drag={editMode === 'AREAS' && selectedLocation?.id === area.location_id}
+              drag={!isMapLocked && editMode === 'AREAS' && selectedLocation?.id === area.location_id}
               dragConstraints={containerRef}
               dragMomentum={false}
               onDragEnd={(e, info) => handleDragEnd(area.id, 'AREA', info)}
               style={{ left: `${area.pos_x}%`, top: `${area.pos_y}%`, position: 'absolute', x: '-50%', y: '-50%' }}
               className={clsx(
                 "px-4 py-2 rounded-xl text-sm font-bold shadow-xl border-2 whitespace-nowrap flex items-center gap-2 transition-colors",
+                !isMapLocked && editMode === 'AREAS' && selectedLocation?.id === area.location_id ? "cursor-grab active:cursor-grabbing" : "cursor-default",
                 editMode === 'AREAS' && selectedLocation?.id === area.location_id
-                  ? "bg-stone-900 text-white border-stone-700 z-40 cursor-grab active:cursor-grabbing hover:bg-stone-800" 
+                  ? "bg-stone-900 text-white border-stone-700 z-40 hover:bg-stone-800" 
                   : "bg-stone-900/40 text-white/80 border-transparent z-10 pointer-events-none"
               )}
             >
               {area.name}
               {editMode === 'AREAS' && selectedLocation?.id === area.location_id && (
                 <>
-                  <Move className="w-3 h-3 text-stone-400" />
+                  {!isMapLocked && <Move className="w-3 h-3 text-stone-400" />}
                   <button 
                     onClick={(e) => { e.stopPropagation(); setActiveArea(area); }}
                     className="ml-2 bg-emerald-500 hover:bg-emerald-400 text-white p-1 rounded-md transition-colors"
