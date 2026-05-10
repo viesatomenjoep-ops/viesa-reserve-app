@@ -14,6 +14,7 @@ CREATE TABLE venues (
   name VARCHAR(100) NOT NULL DEFAULT 'Viesa Beach Club',
   location_address VARCHAR(255),
   map_image_url TEXT DEFAULT '/calabassa-map.jpg',
+  logo_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

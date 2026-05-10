@@ -28,6 +28,7 @@ export interface Venue {
   name: string;
   location_address: string;
   map_image_url: string;
+  logo_url?: string;
 }
 
 export default function AdminMapEditor() {
@@ -42,7 +43,7 @@ export default function AdminMapEditor() {
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [showVenueModal, setShowVenueModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', type: 'BEDS' });
-  const [venueFormData, setVenueFormData] = useState({ name: '', location_address: '', map_image_url: '' });
+  const [venueFormData, setVenueFormData] = useState({ name: '', location_address: '', map_image_url: '', logo_url: '' });
   const [modalTargetLocationId, setModalTargetLocationId] = useState<string | null>(null);
 
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
@@ -81,11 +82,11 @@ export default function AdminMapEditor() {
     
     if (venueData) {
       setVenue(venueData);
-      setVenueFormData({ name: venueData.name, location_address: venueData.location_address || '', map_image_url: venueData.map_image_url });
+      setVenueFormData({ name: venueData.name, location_address: venueData.location_address || '', map_image_url: venueData.map_image_url, logo_url: venueData.logo_url || '' });
     } else {
       // Fallback if no venue exists yet
-      setVenue({ id: 'fallback', name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg' });
-      setVenueFormData({ name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg' });
+      setVenue({ id: 'fallback', name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
+      setVenueFormData({ name: 'VIESA Beach Club', location_address: '', map_image_url: '/calabassa-map.jpg', logo_url: '' });
     }
     
     if (locData) setLocations(locData);
@@ -214,7 +215,8 @@ export default function AdminMapEditor() {
       const payload = { 
         name: venueFormData.name, 
         location_address: venueFormData.location_address, 
-        map_image_url: venueFormData.map_image_url 
+        map_image_url: venueFormData.map_image_url,
+        logo_url: venueFormData.logo_url
       };
       
       if (venue?.id && venue.id !== 'fallback') {
@@ -249,11 +251,18 @@ export default function AdminMapEditor() {
       
       {/* Top Header */}
       <div className="bg-white border-b border-stone-200 p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm z-20 shrink-0">
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900 flex items-center">
-            <Settings2 className="mr-2 text-emerald-600" /> {venue?.name || 'Master Admin Planner'}
-          </h1>
-          <p className="text-stone-500 text-sm mt-1">{venue?.location_address || 'Beheer zones in de lijst, en bepaal posities op de plattegrond.'}</p>
+        <div className="flex items-center">
+          {venue?.logo_url ? (
+            <img src={venue.logo_url} alt="Venue Logo" className="h-10 w-auto object-contain mr-4 rounded-md" />
+          ) : (
+            <Settings2 className="mr-2 text-emerald-600 h-8 w-8" />
+          )}
+          <div>
+            <h1 className="text-2xl font-bold text-stone-900 flex items-center">
+              {venue?.name || 'Master Admin Planner'}
+            </h1>
+            <p className="text-stone-500 text-sm mt-1">{venue?.location_address || 'Beheer zones in de lijst, en bepaal posities op de plattegrond.'}</p>
+          </div>
         </div>
         
         <div className="flex items-center gap-4">
@@ -527,6 +536,48 @@ export default function AdminMapEditor() {
                   <label className="block text-sm font-bold text-stone-700 mb-1">Locatie / Adres</label>
                   <input type="text" value={venueFormData.location_address} onChange={(e) => setVenueFormData({...venueFormData, location_address: e.target.value})} className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. Cala Bassa, Ibiza" />
                 </div>
+                
+                {/* LOGO UPLOAD */}
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Bedrijfslogo (Bovenaan Admin)</label>
+                  <div className="flex flex-col gap-2 mt-2 mb-3">
+                    <label className="flex items-center justify-center w-full py-3 px-4 border-2 border-dashed border-stone-300 bg-stone-50 text-stone-600 rounded-xl font-bold cursor-pointer hover:bg-stone-100 transition-colors">
+                      <span className="flex items-center"><Plus className="w-5 h-5 mr-2" /> Upload Logo (Cloudinary)</span>
+                      <input 
+                        type="file" accept="image/*" className="hidden" 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+                          const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+                          if (!cloudName || !uploadPreset) {
+                            alert("Cloudinary is nog niet geconfigureerd! Voeg NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME en NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET toe in Vercel.");
+                            return;
+                          }
+                          alert("Logo uploaden naar Cloudinary gestart... even geduld.");
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          formData.append('upload_preset', uploadPreset);
+                          try {
+                            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: formData });
+                            const data = await res.json();
+                            if (data.secure_url) {
+                              setVenueFormData({ ...venueFormData, logo_url: data.secure_url });
+                              alert("Logo succesvol geüpload!");
+                            } else alert("Fout bij uploaden: " + data.error?.message);
+                          } catch (err) { alert("Netwerkfout bij uploaden."); }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  {venueFormData.logo_url && (
+                    <div className="mt-2 p-2 bg-stone-100 border border-stone-200 rounded-lg flex items-center justify-center">
+                      <img src={venueFormData.logo_url} className="h-12 object-contain" alt="Logo preview" />
+                    </div>
+                  )}
+                </div>
+
+                {/* PLATTEGROND UPLOAD */}
                 <div>
                   <label className="block text-sm font-bold text-stone-700 mb-1">Achtergrond Plattegrond URL</label>
                   
