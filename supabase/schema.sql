@@ -126,8 +126,21 @@ INSERT INTO beds (area_id, name, price, min_spend, status, reserved_until, pos_x
   ('a1111111-1111-1111-1111-222222222222', 'Row 3 - B', 100, 250, 'AVAILABLE', NULL, 50, 80),
   ('a1111111-1111-1111-1111-222222222222', 'Row 3 - C', 100, 250, 'AVAILABLE', NULL, 80, 80);
 
--- 6. Disable RLS (Row Level Security) for public testing
-ALTER TABLE venues DISABLE ROW LEVEL SECURITY;
-ALTER TABLE locations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE areas DISABLE ROW LEVEL SECURITY;
-ALTER TABLE beds DISABLE ROW LEVEL SECURITY;
+-- 6. Enable RLS and create permissive policies for public testing
+-- (Supabase blocks inserts sometimes if RLS is fully disabled without policies)
+
+ALTER TABLE venues ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on venues" ON venues;
+CREATE POLICY "Allow public read/write on venues" ON venues FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE locations ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on locations" ON locations;
+CREATE POLICY "Allow public read/write on locations" ON locations FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE areas ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on areas" ON areas;
+CREATE POLICY "Allow public read/write on areas" ON areas FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE beds ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on beds" ON beds;
+CREATE POLICY "Allow public read/write on beds" ON beds FOR ALL USING (true) WITH CHECK (true);
