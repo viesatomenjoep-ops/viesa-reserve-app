@@ -57,6 +57,12 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
+  useEffect(() => {
+    if (activeArea) {
+      fetchBedsData(activeArea.id);
+    }
+  }, [activeArea]);
+
   const fetchData = async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       setLocations([
