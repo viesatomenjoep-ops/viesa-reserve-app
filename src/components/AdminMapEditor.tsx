@@ -276,7 +276,8 @@ export default function AdminMapEditor() {
       } else {
         const { data, error } = await supabase.from('venues').insert([payload]).select().single();
         if (error) {
-          alert("BELANGRIJK: Je hebt de nieuwe schema.sql code nog niet uitgevoerd in Supabase! De 'venues' tabel mist nog. Plak de schema.sql code in je SQL Editor en klik Run.");
+          console.error("Venue insert error:", error);
+          alert(`Opslaan mislukt! Zorg dat je de ALLERNIEUWSTE schema.sql hebt gerund in Supabase.\n\nTechnische error: ${error.message}\nDetails: ${error.details || 'geen'}`);
           return;
         }
         if (data) {
