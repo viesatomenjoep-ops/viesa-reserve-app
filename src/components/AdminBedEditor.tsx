@@ -64,7 +64,12 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
     setBeds([...beds, { ...newBed, id: Math.random().toString() }]);
 
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      const { data } = await supabase.from('beds').insert([newBed]).select().single();
+      const { data, error } = await supabase.from('beds').insert([newBed]).select().single();
+      if (error) {
+        alert("Fout bij opslaan van bed: " + error.message);
+        fetchBeds(); // Revert optimistic UI
+        return;
+      }
       if (data) {
         fetchBeds();
         alert("Bed succesvol toegevoegd en opgeslagen!");
@@ -75,7 +80,7 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
   };
 
   const handleBulkCreate = async () => {
-    const newBeds: Omit<Bed, 'id'>[] = Array.from({ length: bulkData.count }).map((_, i) => ({
+    const newBeds = Array.from({ length: bulkData.count }).map((_, i) => ({
       area_id: area.id,
       name: `${bulkData.prefix}${i + 1}`,
       price: bulkData.price,
@@ -86,10 +91,15 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
     }));
 
     // Optimistic UI
-    setBeds([...beds, ...newBeds.map(b => ({ ...b, id: Math.random().toString() }))]);
+    setBeds([...beds, ...newBeds.map(b => ({ ...b, id: Math.random().toString() } as Bed))]);
 
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      await supabase.from('beds').insert(newBeds);
+      const { error } = await supabase.from('beds').insert(newBeds);
+      if (error) {
+        alert("Fout bij het opslaan in de database: " + error.message);
+        fetchBeds(); // Revert optimistic UI
+        return;
+      }
       fetchBeds(); 
       alert(`${bulkData.count} bedden succesvol gegenereerd en opgeslagen in de database!`);
     } else {
