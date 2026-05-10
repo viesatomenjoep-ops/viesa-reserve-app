@@ -66,17 +66,22 @@ ALTER PUBLICATION supabase_realtime ADD TABLE venues;
 -- INITIAL SEED DATA
 -- ==============================================================================
 
--- Create the Global Venue Settings
+-- Create the Global Venue Settings (Seeding two clubs for the demo)
 INSERT INTO venues (id, name, location_address, map_image_url) VALUES 
-  ('00000000-0000-0000-0000-000000000000', 'Cala Bassa Beach Club', 'Ibiza, Spain', '/calabassa-map.jpg');
+  ('00000000-0000-0000-0000-000000000000', 'Cala Bassa Beach Club', 'Ibiza, Spain', '/calabassa-map.jpg'),
+  ('99999999-9999-9999-9999-999999999999', 'Blue Marlin Ibiza', 'Cala Jondal, Ibiza', '/calabassa-map.jpg');
 
--- Create the 5 Main Zones
+-- Create the 5 Main Zones for Cala Bassa
 INSERT INTO locations (id, venue_id, name, sort_order, pos_x, pos_y) VALUES 
   ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000000', 'Zone 1', 1, 15, 50),
   ('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000000', 'Zone 2', 2, 30, 25),
   ('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000000', 'Zone 3', 3, 65, 25),
   ('44444444-4444-4444-4444-444444444444', '00000000-0000-0000-0000-000000000000', 'Zone 4', 4, 85, 45),
   ('55555555-5555-5555-5555-555555555555', '00000000-0000-0000-0000-000000000000', 'Zone 5', 5, 90, 75);
+
+-- Create a Test Zone for Blue Marlin
+INSERT INTO locations (id, venue_id, name, sort_order, pos_x, pos_y) VALUES 
+  ('66666666-6666-6666-6666-666666666666', '99999999-9999-9999-9999-999999999999', 'VIP Deck', 1, 50, 50);
 
 -- Zone 1: Chiringo
 INSERT INTO areas (id, location_id, name, type, pos_x, pos_y) VALUES
