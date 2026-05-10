@@ -99,8 +99,13 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       const filteredLocs = locData.filter(l => l.venue_id === targetVenueId || !l.venue_id);
       filteredLocs.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
       setLocations(filteredLocs);
+
+      if (areaData) {
+        const validLocationIds = new Set(filteredLocs.map(l => l.id));
+        const filteredAreas = areaData.filter(a => validLocationIds.has(a.location_id));
+        setAreas(filteredAreas);
+      }
     }
-    if (areaData) setAreas(areaData);
   };
 
   // Re-fetch locations when venue changes
