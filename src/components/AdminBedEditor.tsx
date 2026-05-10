@@ -21,9 +21,10 @@ export interface Bed {
 interface AdminBedEditorProps {
   area: Area;
   onBack: () => void;
+  onDeleteArea?: () => void;
 }
 
-export default function AdminBedEditor({ area, onBack }: AdminBedEditorProps) {
+export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedEditorProps) {
   const [beds, setBeds] = useState<Bed[]>([]);
   const [editingBed, setEditingBed] = useState<Bed | null>(null);
 
