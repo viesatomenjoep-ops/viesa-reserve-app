@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Coffee, Users, TrendingUp, Star } from 'lucide-react';
+import { ArrowRight, Coffee, Users, TrendingUp, Star, ShieldAlert } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AdminDashboard() {
@@ -11,6 +11,7 @@ export default function AdminDashboard() {
     { title: t('adminWaitlist'), desc: t('adminWaitlistDesc'), icon: <Users className="w-8 h-8 text-blue-500" />, href: "/admin/waitlist" },
     { title: t('adminYield'), desc: t('adminYieldDesc'), icon: <TrendingUp className="w-8 h-8 text-emerald-500" />, href: "/admin/yield" },
     { title: t('adminVIP'), desc: t('adminVIPDesc'), icon: <Star className="w-8 h-8 text-purple-500" />, href: "/admin/vip" },
+    { title: "Operations & Weer", desc: "Live beheer van sluitingen, weer-alerts en surge pricing.", icon: <ShieldAlert className="w-8 h-8 text-red-500" />, href: "/admin/operations" },
   ];
 
   return (

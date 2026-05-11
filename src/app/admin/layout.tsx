@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { Map, Coffee, Users, TrendingUp, Star, LayoutDashboard, Globe } from 'lucide-react';
+import { Map, Coffee, Users, TrendingUp, Star, LayoutDashboard, Globe, ShieldAlert } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -46,6 +46,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/vip" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/60 hover:shadow-sm transition-all text-stone-600 hover:text-stone-900 font-medium">
             <Star className="w-5 h-5" />
             <span>{t('adminVIP')}</span>
+          </Link>
+          <Link href="/admin/operations" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-red-50 hover:shadow-sm transition-all text-red-600 hover:text-red-800 font-bold bg-white/40">
+            <ShieldAlert className="w-5 h-5" />
+            <span>Operations & Weer</span>
           </Link>
         </nav>
         

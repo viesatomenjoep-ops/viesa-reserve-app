@@ -14,6 +14,7 @@ export interface Bed {
   min_spend: number;
   status: 'AVAILABLE' | 'PARTIAL' | 'BOOKED';
   reserved_until?: string | null;
+  assigned_waiter?: string | null;
   pos_x: number;
   pos_y: number;
 }
@@ -119,7 +120,8 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
         price: editingBed.price,
         min_spend: editingBed.min_spend,
         status: editingBed.status,
-        reserved_until: editingBed.status === 'PARTIAL' ? editingBed.reserved_until : null
+        reserved_until: editingBed.status === 'PARTIAL' ? editingBed.reserved_until : null,
+        assigned_waiter: editingBed.assigned_waiter || null
       }).eq('id', editingBed.id);
     }
     
@@ -222,6 +224,7 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
                   <span className="font-bold text-sm sm:text-base text-center px-2">{bed.name}</span>
                   {bed.status === 'PARTIAL' && <span className="text-[0.6rem] font-bold text-orange-600 mt-1">Tot {bed.reserved_until}</span>}
                   <span className="text-xs opacity-70 mt-1 font-medium">€{bed.price}</span>
+                  {bed.assigned_waiter && <span className="text-[0.65rem] font-bold text-blue-600 mt-1 uppercase">Staf: {bed.assigned_waiter}</span>}
 
                   {/* iPad Quick Actions for Staff */}
                   <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
@@ -290,6 +293,17 @@ export default function AdminBedEditor({ area, onBack, onDeleteArea }: AdminBedE
                     className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-black mb-1">Toegewezen Personeel / Waiter</label>
+                <input 
+                  type="text" 
+                  placeholder="Bijv. Sarah of Team A"
+                  value={editingBed.assigned_waiter || ''} 
+                  onChange={(e) => setEditingBed({...editingBed, assigned_waiter: e.target.value})}
+                  className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black font-medium"
+                />
               </div>
 
               <div>
