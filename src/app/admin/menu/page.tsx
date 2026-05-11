@@ -2,6 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Utensils } from 'lucide-react';
 
+const EMOJI_OPTIONS = {
+  Drankjes: ["🍹", "🍸", "🥂", "🍺", "🍷", "🍾", "🥃", "🧊", "🥤", "☕"],
+  Fruit: ["🍉", "🍓", "🍒", "🍇", "🍍", "🥥", "🍋", "🍌", "🍎"],
+  Food: ["🍔", "🍕", "🌮", "🦑", "🦐", "🥩", "🍟", "🥗", "🧀", "🌭", "🥪"]
+};
+
 export default function AdminMenuPage() {
   const [menuItems, setMenuItems] = useState<{name: string, price: number, img: string}[]>([]);
   const [newItemName, setNewItemName] = useState('');
@@ -43,43 +49,91 @@ export default function AdminMenuPage() {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">QR Menu Beheer</h1>
-        <p className="text-slate-500">Beheer de gerechten en drankjes voor de strandbed bestellingen.</p>
+    <div className="p-10 relative overflow-hidden min-h-screen text-[#3d3935]">
+      {/* Decorative Orbs */}
+      <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl floating pointer-events-none z-0"></div>
+
+      <div className="mb-10 relative z-10">
+        <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">QR Menu Beheer</h1>
+        <p className="text-stone-500 text-lg">Beheer de gerechten en drankjes voor de strandbed bestellingen (Synchroniseert met de database).</p>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-        <h2 className="font-bold text-xl mb-6 flex items-center gap-2"><Utensils className="w-5 h-5 text-amber-500" /> Strand Menu</h2>
+      <div className="glass-panel rounded-3xl p-8 shadow-sm relative z-10">
+        <h2 className="font-bold font-serif text-2xl mb-8 flex items-center gap-3"><Utensils className="w-6 h-6 text-amber-500" /> Strand Menu</h2>
         
-        <table className="w-full text-left border-collapse mb-8">
-          <thead>
-            <tr className="border-b border-slate-200 text-slate-500 text-sm">
-              <th className="pb-3 font-medium">Item</th>
-              <th className="pb-3 font-medium">Prijs</th>
-              <th className="pb-3 font-medium text-right">Actie</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm">
-            {menuItems.map((item, i) => (
-              <tr key={i} className="border-b border-slate-100 group">
-                <td className="py-3 font-medium text-slate-900 flex items-center gap-2 text-lg"><span>{item.img}</span> <span className="text-sm">{item.name}</span></td>
-                <td className="py-3 text-slate-600">€ {item.price.toFixed(2)}</td>
-                <td className="py-3 text-right">
-                  <button onClick={() => removeItem(i)} className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4 ml-auto"/></button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse mb-10">
+            <thead>
+              <tr className="border-b border-white/40 text-stone-500 text-sm tracking-wider uppercase">
+                <th className="pb-4 font-bold">Item</th>
+                <th className="pb-4 font-bold">Prijs</th>
+                <th className="pb-4 font-bold text-right">Actie</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="text-sm">
+              {menuItems.map((item, i) => (
+                <tr key={i} className="border-b border-white/20 group hover:bg-white/30 transition-colors">
+                  <td className="py-4 font-medium text-stone-900 flex items-center gap-3 text-lg font-serif">
+                    <span className="bg-white/50 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm text-2xl border border-white/60">{item.img}</span> 
+                    <span className="text-lg">{item.name}</span>
+                  </td>
+                  <td className="py-4 text-stone-600 font-medium text-base">€ {item.price.toFixed(2)}</td>
+                  <td className="py-4 text-right">
+                    <button onClick={() => removeItem(i)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all p-2 bg-red-50 hover:bg-red-100 rounded-lg"><Trash2 className="w-5 h-5 ml-auto"/></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <div className="border border-dashed border-slate-300 rounded-xl p-4 bg-slate-50">
-          <h4 className="font-semibold text-sm mb-3">Nieuw Menu Item Toevoegen</h4>
-          <div className="flex gap-2">
-            <input type="text" placeholder="Emoji (bijv. 🍔)" value={newItemEmoji} onChange={e => setNewItemEmoji(e.target.value)} className="w-20 px-3 py-2 border rounded-lg text-sm text-center" />
-            <input type="text" placeholder="Item naam" value={newItemName} onChange={e => setNewItemName(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm" />
-            <input type="number" placeholder="Prijs (€)" value={newItemPrice} onChange={e => setNewItemPrice(e.target.value)} className="w-32 px-3 py-2 border rounded-lg text-sm" />
-            <button onClick={addItem} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800"><Plus className="w-4 h-4"/></button>
+        <div className="border border-white/60 rounded-2xl p-6 bg-white/40 shadow-sm">
+          <h4 className="font-bold text-lg mb-4 font-serif text-stone-800">Nieuw Menu Item Toevoegen</h4>
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            
+            {/* EMOJI SELECTOR */}
+            <div className="relative">
+              <select 
+                value={newItemEmoji} 
+                onChange={e => setNewItemEmoji(e.target.value)} 
+                className="w-24 px-4 py-3 border border-white/80 bg-white/70 rounded-xl text-2xl text-center appearance-none cursor-pointer outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
+              >
+                {Object.entries(EMOJI_OPTIONS).map(([category, emojis]) => (
+                  <optgroup key={category} label={category}>
+                    {emojis.map(emoji => (
+                      <option key={emoji} value={emoji}>{emoji}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-xs opacity-50">▼</div>
+            </div>
+
+            <input 
+              type="text" 
+              placeholder="Item naam (bijv. Watermeloen)" 
+              value={newItemName} 
+              onChange={e => setNewItemName(e.target.value)} 
+              className="flex-1 px-4 py-3 border border-white/80 bg-white/70 rounded-xl text-base font-medium outline-none focus:ring-2 focus:ring-amber-500 shadow-sm w-full" 
+            />
+            
+            <div className="relative w-full md:w-32">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-500 font-bold">€</span>
+              <input 
+                type="number" 
+                placeholder="0.00" 
+                value={newItemPrice} 
+                onChange={e => setNewItemPrice(e.target.value)} 
+                className="w-full pl-8 pr-4 py-3 border border-white/80 bg-white/70 rounded-xl text-base font-medium outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" 
+              />
+            </div>
+            
+            <button 
+              onClick={addItem} 
+              className="w-full md:w-auto bg-stone-900 text-white px-8 py-3 rounded-xl text-base font-bold hover:bg-stone-800 transition-all shadow-md flex items-center justify-center gap-2"
+            >
+              <Plus className="w-5 h-5"/> Opslaan
+            </button>
           </div>
         </div>
       </div>
