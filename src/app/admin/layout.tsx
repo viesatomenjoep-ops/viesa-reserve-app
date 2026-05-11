@@ -23,6 +23,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Coffee className="w-5 h-5" />
             <span>F&B Orders (POS)</span>
           </Link>
+          <Link href="/admin/menu" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
+            <Coffee className="w-5 h-5" />
+            <span>Menu Beheer</span>
+          </Link>
           <Link href="/admin/waitlist" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
             <Users className="w-5 h-5" />
             <span>Smart Waitlist</span>

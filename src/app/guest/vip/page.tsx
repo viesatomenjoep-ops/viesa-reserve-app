@@ -1,17 +1,25 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Plus, Minus, Check } from 'lucide-react';
 
 export default function GuestVIPPage() {
   const [selectedBottles, setSelectedBottles] = useState<{name: string, price: number, qty: number}[]>([]);
+  const [bottles, setBottles] = useState<{name: string, price: number, img: string}[]>([]);
   const minSpend = 500;
 
-  const bottles = [
-    { name: "Moët & Chandon Ice", price: 140, img: "🍾" },
-    { name: "Dom Pérignon Luminous", price: 350, img: "🥂" },
-    { name: "Grey Goose (1.5L)", price: 380, img: "🍸" },
-    { name: "Don Julio 1942", price: 450, img: "🥃" },
-  ];
+  useEffect(() => {
+    const saved = localStorage.getItem('viesa_vip_bottles');
+    if (saved) {
+      setBottles(JSON.parse(saved));
+    } else {
+      setBottles([
+        { name: "Moët & Chandon Ice", price: 140, img: "🍾" },
+        { name: "Dom Pérignon Luminous", price: 350, img: "🥂" },
+        { name: "Grey Goose (1.5L)", price: 380, img: "🍸" },
+        { name: "Don Julio 1942", price: 450, img: "🥃" },
+      ]);
+    }
+  }, []);
 
   const updateQty = (bottle: any, delta: number) => {
     setSelectedBottles(prev => {

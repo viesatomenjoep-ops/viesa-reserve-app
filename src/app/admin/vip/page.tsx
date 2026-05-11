@@ -1,8 +1,72 @@
 "use client";
-import React from 'react';
-import { Star, Shield, Euro } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Shield, Euro, Plus, Trash2 } from 'lucide-react';
 
 export default function AdminVIPPage() {
+  const [zones, setZones] = useState<{name: string, capacity: string, minSpend: number}[]>([]);
+  const [bottles, setBottles] = useState<{name: string, price: number, img: string}[]>([]);
+  const [newZoneName, setNewZoneName] = useState('');
+  const [newZoneSpend, setNewZoneSpend] = useState('');
+  const [newBottleName, setNewBottleName] = useState('');
+  const [newBottlePrice, setNewBottlePrice] = useState('');
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedZones = localStorage.getItem('viesa_vip_zones');
+    if (savedZones) {
+      setZones(JSON.parse(savedZones));
+    } else {
+      setZones([
+        { name: "Poolside VIP Cabanas", capacity: "4 Cabanas beschikbaar (Max 8 pers.)", minSpend: 500 },
+        { name: "Beachfront Lounge", capacity: "2 Lounges beschikbaar (Max 12 pers.)", minSpend: 1000 }
+      ]);
+    }
+
+    const savedBottles = localStorage.getItem('viesa_vip_bottles');
+    if (savedBottles) {
+      setBottles(JSON.parse(savedBottles));
+    } else {
+      setBottles([
+        { name: "Moët & Chandon Ice Impérial", price: 140, img: "🍾" },
+        { name: "Dom Pérignon Luminous (0.75L)", price: 350, img: "🥂" },
+        { name: "Grey Goose Vodka (1.5L)", price: 380, img: "🍸" },
+        { name: "Don Julio 1942", price: 450, img: "🥃" },
+      ]);
+    }
+  }, []);
+
+  // Save to localStorage when changed
+  useEffect(() => {
+    if (zones.length > 0) localStorage.setItem('viesa_vip_zones', JSON.stringify(zones));
+  }, [zones]);
+
+  useEffect(() => {
+    if (bottles.length > 0) localStorage.setItem('viesa_vip_bottles', JSON.stringify(bottles));
+  }, [bottles]);
+
+  const addZone = () => {
+    if (newZoneName && newZoneSpend) {
+      setZones([...zones, { name: newZoneName, capacity: "Nieuwe Zone", minSpend: Number(newZoneSpend) }]);
+      setNewZoneName('');
+      setNewZoneSpend('');
+    }
+  };
+
+  const addBottle = () => {
+    if (newBottleName && newBottlePrice) {
+      setBottles([...bottles, { name: newBottleName, price: Number(newBottlePrice), img: "🍾" }]);
+      setNewBottleName('');
+      setNewBottlePrice('');
+    }
+  };
+
+  const removeBottle = (idx: number) => {
+    setBottles(bottles.filter((_, i) => i !== idx));
+  };
+
+  const removeZone = (idx: number) => {
+    setZones(zones.filter((_, i) => i !== idx));
+  };
   return (
     <div className="p-8 max-w-5xl mx-auto">
       <div className="mb-8">
@@ -16,33 +80,32 @@ export default function AdminVIPPage() {
           <h2 className="font-bold text-xl mb-6 flex items-center gap-2"><Star className="w-5 h-5 text-amber-500" /> Cabana Zones</h2>
           
           <div className="space-y-4">
-             <div className="border border-slate-200 rounded-xl p-4 hover:border-indigo-300 transition-colors cursor-pointer">
+            {zones.map((zone, i) => (
+             <div key={i} className="border border-slate-200 rounded-xl p-4 hover:border-indigo-300 transition-colors cursor-pointer relative group">
+               <button onClick={() => removeZone(i)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                 <Trash2 className="w-4 h-4" />
+               </button>
                <div className="flex justify-between items-center mb-2">
-                 <h3 className="font-bold text-lg text-slate-900">Poolside VIP Cabanas</h3>
+                 <h3 className="font-bold text-lg text-slate-900 pr-8">{zone.name}</h3>
                  <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-bold">Actief</span>
                </div>
-               <p className="text-slate-500 text-sm mb-4">4 Cabanas beschikbaar (Max 8 pers.)</p>
+               <p className="text-slate-500 text-sm mb-4">{zone.capacity}</p>
                <div className="bg-slate-50 p-3 rounded-lg flex justify-between items-center border border-slate-100">
                  <span className="text-sm font-medium text-slate-700">Minimum Spend</span>
-                 <span className="font-bold text-indigo-600">€ 500,00</span>
+                 <span className="font-bold text-indigo-600">€ {zone.minSpend.toFixed(2)}</span>
                </div>
              </div>
-
-             <div className="border border-slate-200 rounded-xl p-4 hover:border-indigo-300 transition-colors cursor-pointer">
-               <div className="flex justify-between items-center mb-2">
-                 <h3 className="font-bold text-lg text-slate-900">Beachfront Lounge</h3>
-                 <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-bold">Actief</span>
-               </div>
-               <p className="text-slate-500 text-sm mb-4">2 Lounges beschikbaar (Max 12 pers.)</p>
-               <div className="bg-slate-50 p-3 rounded-lg flex justify-between items-center border border-slate-100">
-                 <span className="text-sm font-medium text-slate-700">Minimum Spend</span>
-                 <span className="font-bold text-indigo-600">€ 1.000,00</span>
-               </div>
-             </div>
+            ))}
           </div>
-          <button className="w-full mt-6 py-3 border border-dashed border-slate-300 rounded-xl text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-700 transition-colors">
-            + Nieuwe VIP Zone Toevoegen
-          </button>
+
+          <div className="mt-6 border border-dashed border-slate-300 rounded-xl p-4 bg-slate-50">
+            <h4 className="font-semibold text-sm mb-3">Nieuwe VIP Zone</h4>
+            <div className="flex gap-2">
+              <input type="text" placeholder="Zone naam" value={newZoneName} onChange={e => setNewZoneName(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm" />
+              <input type="number" placeholder="Min. Spend (€)" value={newZoneSpend} onChange={e => setNewZoneSpend(e.target.value)} className="w-32 px-3 py-2 border rounded-lg text-sm" />
+              <button onClick={addZone} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800"><Plus className="w-4 h-4"/></button>
+            </div>
+          </div>
         </div>
 
         {/* Flessen Menu */}
@@ -59,31 +122,26 @@ export default function AdminVIPPage() {
                </tr>
              </thead>
              <tbody className="text-sm">
-               <tr className="border-b border-slate-100">
-                 <td className="py-3 font-medium text-slate-900">Moët & Chandon Ice Impérial</td>
-                 <td className="py-3 text-slate-600">€ 140,00</td>
-                 <td className="py-3 text-right"><button className="text-indigo-600 hover:underline">Bewerk</button></td>
-               </tr>
-               <tr className="border-b border-slate-100">
-                 <td className="py-3 font-medium text-slate-900">Dom Pérignon Luminous (0.75L)</td>
-                 <td className="py-3 text-slate-600">€ 350,00</td>
-                 <td className="py-3 text-right"><button className="text-indigo-600 hover:underline">Bewerk</button></td>
-               </tr>
-               <tr className="border-b border-slate-100">
-                 <td className="py-3 font-medium text-slate-900">Grey Goose Vodka (1.5L)</td>
-                 <td className="py-3 text-slate-600">€ 380,00</td>
-                 <td className="py-3 text-right"><button className="text-indigo-600 hover:underline">Bewerk</button></td>
-               </tr>
-               <tr className="border-b border-slate-100">
-                 <td className="py-3 font-medium text-slate-900">Don Julio 1942</td>
-                 <td className="py-3 text-slate-600">€ 450,00</td>
-                 <td className="py-3 text-right"><button className="text-indigo-600 hover:underline">Bewerk</button></td>
-               </tr>
+               {bottles.map((bottle, i) => (
+                 <tr key={i} className="border-b border-slate-100 group">
+                   <td className="py-3 font-medium text-slate-900 flex items-center gap-2"><span>{bottle.img}</span> {bottle.name}</td>
+                   <td className="py-3 text-slate-600">€ {bottle.price.toFixed(2)}</td>
+                   <td className="py-3 text-right">
+                     <button onClick={() => removeBottle(i)} className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4 ml-auto"/></button>
+                   </td>
+                 </tr>
+               ))}
              </tbody>
            </table>
-           <button className="w-full mt-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors">
-            Fles Toevoegen
-          </button>
+           
+           <div className="mt-6 border border-dashed border-slate-300 rounded-xl p-4 bg-slate-50">
+            <h4 className="font-semibold text-sm mb-3">Nieuwe Fles</h4>
+            <div className="flex gap-2">
+              <input type="text" placeholder="Fles naam" value={newBottleName} onChange={e => setNewBottleName(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm" />
+              <input type="number" placeholder="Prijs (€)" value={newBottlePrice} onChange={e => setNewBottlePrice(e.target.value)} className="w-32 px-3 py-2 border rounded-lg text-sm" />
+              <button onClick={addBottle} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800"><Plus className="w-4 h-4"/></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

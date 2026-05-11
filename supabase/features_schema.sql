@@ -66,6 +66,19 @@ CREATE TABLE IF NOT EXISTS vip_bottles (
 );
 
 -- ==========================================
+-- MODULE 5: QR Beach Menu
+-- ==========================================
+CREATE TABLE IF NOT EXISTS menu_items (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  venue_id UUID REFERENCES venues(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  image_emoji VARCHAR(10),
+  is_available BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
 -- REALTIME SUBSCRIPTIONS
 -- ==========================================
 ALTER PUBLICATION supabase_realtime ADD TABLE pos_orders;
@@ -88,6 +101,9 @@ CREATE POLICY "Allow public read/write on yield_rules" ON yield_rules FOR ALL US
 
 ALTER TABLE vip_bottles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read/write on vip_bottles" ON vip_bottles FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read/write on menu_items" ON menu_items FOR ALL USING (true) WITH CHECK (true);
 
 -- ==========================================
 -- MOCK DATA FOR DEMO

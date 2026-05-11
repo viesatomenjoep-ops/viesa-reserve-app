@@ -1,18 +1,26 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Minus, ShoppingBag } from 'lucide-react';
 
 export default function GuestMenuPage() {
   const [cart, setCart] = useState<{name: string, price: number, qty: number}[]>([]);
+  const [menu, setMenu] = useState<{name: string, price: number, img: string}[]>([]);
 
-  const menu = [
-    { name: "Aperol Spritz", price: 12.5, img: "🍹" },
-    { name: "Mojito", price: 14.0, img: "🌱" },
-    { name: "Corona Extra", price: 8.5, img: "🍺" },
-    { name: "Calamaris", price: 16.0, img: "🦑" },
-    { name: "Nachos Todos", price: 18.5, img: "🧀" },
-    { name: "Fruit Platter", price: 24.0, img: "🍉" }
-  ];
+  useEffect(() => {
+    const saved = localStorage.getItem('viesa_menu_items');
+    if (saved) {
+      setMenu(JSON.parse(saved));
+    } else {
+      setMenu([
+        { name: "Aperol Spritz", price: 12.5, img: "🍹" },
+        { name: "Mojito", price: 14.0, img: "🌱" },
+        { name: "Corona Extra", price: 8.5, img: "🍺" },
+        { name: "Calamaris", price: 16.0, img: "🦑" },
+        { name: "Nachos Todos", price: 18.5, img: "🧀" },
+        { name: "Fruit Platter", price: 24.0, img: "🍉" }
+      ]);
+    }
+  }, []);
 
   const addToCart = (item: any) => {
     setCart(prev => {

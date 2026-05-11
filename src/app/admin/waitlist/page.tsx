@@ -1,8 +1,25 @@
 "use client";
-import React from 'react';
-import { Send, UserMinus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Send, UserMinus, CheckCircle2 } from 'lucide-react';
 
 export default function AdminWaitlistPage() {
+  const [bookings, setBookings] = useState([
+    { id: 1, bed: "Bed 12 - Front Row", name: "M. de Vries", phone: "+31612345678" },
+    { id: 2, bed: "Bed 14 - Front Row", name: "J. Pietersen", phone: "+31687654321" }
+  ]);
+  
+  const [waitlist, setWaitlist] = useState([
+    { id: 1, name: "S. Bakker", phone: "+31 6 11 22 33 44", notified: false },
+    { id: 2, name: "A. Jansen", phone: "+31 6 99 88 77 66", notified: false }
+  ]);
+
+  const markNoShow = (id: number) => {
+    setBookings(bookings.filter(b => b.id !== id));
+  };
+
+  const sendSms = (id: number) => {
+    setWaitlist(waitlist.map(w => w.id === id ? { ...w, notified: true } : w));
+  };
   return (
     <div className="p-8 max-w-5xl mx-auto">
       <div className="mb-8">
@@ -19,24 +36,18 @@ export default function AdminWaitlistPage() {
           </h2>
           
           <div className="space-y-3">
-            <div className="border border-slate-100 p-4 rounded-xl flex justify-between items-center hover:bg-slate-50">
-              <div>
-                <p className="font-bold">Bed 12 - Front Row</p>
-                <p className="text-sm text-slate-500">M. de Vries (+31612345678)</p>
+            {bookings.length === 0 && <p className="text-sm text-slate-500 italic p-4">Geen actieve reserveringen meer.</p>}
+            {bookings.map(booking => (
+              <div key={booking.id} className="border border-slate-100 p-4 rounded-xl flex justify-between items-center hover:bg-slate-50">
+                <div>
+                  <p className="font-bold">{booking.bed}</p>
+                  <p className="text-sm text-slate-500">{booking.name} ({booking.phone})</p>
+                </div>
+                <button onClick={() => markNoShow(booking.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Markeer als No-Show">
+                  <UserMinus className="w-5 h-5" />
+                </button>
               </div>
-              <button className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Markeer als No-Show">
-                <UserMinus className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="border border-slate-100 p-4 rounded-xl flex justify-between items-center hover:bg-slate-50">
-              <div>
-                <p className="font-bold">Bed 14 - Front Row</p>
-                <p className="text-sm text-slate-500">J. Pietersen (+31687654321)</p>
-              </div>
-              <button className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Markeer als No-Show">
-                <UserMinus className="w-5 h-5" />
-              </button>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -48,24 +59,27 @@ export default function AdminWaitlistPage() {
           <div className="space-y-3 relative">
             <div className="absolute left-4 top-4 bottom-4 w-px bg-slate-700"></div>
             
-            <div className="relative flex gap-4 items-center bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-sm z-10 shrink-0">1</div>
-              <div className="flex-1">
-                <p className="font-bold">S. Bakker</p>
-                <p className="text-sm text-slate-400">+31 6 11 22 33 44</p>
+            {waitlist.length === 0 && <p className="text-sm text-slate-500 italic p-4 ml-6">Wachtlijst is leeg.</p>}
+            {waitlist.map((person, index) => (
+              <div key={person.id} className="relative flex gap-4 items-center bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10 shrink-0 ${person.notified ? 'bg-green-500 text-white' : index === 0 ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                  {person.notified ? <CheckCircle2 className="w-4 h-4"/> : index + 1}
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold">{person.name}</p>
+                  <p className="text-sm text-slate-400">{person.phone}</p>
+                </div>
+                {!person.notified ? (
+                  <button onClick={() => sendSms(person.id)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+                    <Send className="w-4 h-4" /> SMS Nu
+                  </button>
+                ) : (
+                  <span className="text-green-400 text-sm font-medium flex items-center gap-1">
+                    SMS Verzonden
+                  </span>
+                )}
               </div>
-              <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-                <Send className="w-4 h-4" /> SMS Nu
-              </button>
-            </div>
-
-            <div className="relative flex gap-4 items-center bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-sm z-10 shrink-0">2</div>
-              <div className="flex-1">
-                <p className="font-bold">A. Jansen</p>
-                <p className="text-sm text-slate-400">+31 6 99 88 77 66</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
