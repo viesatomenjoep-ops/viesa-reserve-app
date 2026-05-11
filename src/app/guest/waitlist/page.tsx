@@ -25,7 +25,7 @@ export default function GuestWaitlistPage() {
             <div className="space-y-5">
               <div>
                 <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">{t('name')}</label>
-                <input type="text" placeholder="Jouw naam" className="w-full bg-white/70 border border-white/80 rounded-2xl px-5 py-4 text-stone-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
+                <input type="text" placeholder={t('waitlistNamePlaceholder')} className="w-full bg-white/70 border border-white/80 rounded-2xl px-5 py-4 text-stone-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">{t('phone')}</label>
@@ -34,9 +34,9 @@ export default function GuestWaitlistPage() {
               <div>
                 <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">{t('waitlistDesiredZone')}</label>
                 <select className="w-full bg-white/70 border border-white/80 rounded-2xl px-5 py-4 text-stone-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 appearance-none shadow-sm cursor-pointer">
-                  <option>Front Row (Eerste rij)</option>
-                  <option>Standard Beach Bed</option>
-                  <option>VIP Cabana</option>
+                  <option>{t('waitlistZone1')}</option>
+                  <option>{t('waitlistZone2')}</option>
+                  <option>{t('waitlistZone3')}</option>
                 </select>
               </div>
             </div>
