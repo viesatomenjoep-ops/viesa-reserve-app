@@ -6,30 +6,32 @@ export default function GuestWaitlistPage() {
   const [joined, setJoined] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-slate-950 to-indigo-900/40 z-0"></div>
+    <div className="min-h-screen bg-sand-gradient text-[#3d3935] flex flex-col justify-center p-6 relative overflow-hidden font-sans">
+      {/* Decorative Orbs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none z-0"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#efe9db]/50 rounded-full blur-3xl pointer-events-none z-0"></div>
       
       <div className="relative z-10 max-w-md w-full mx-auto">
         {!joined ? (
-          <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
-            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 mx-auto border border-blue-500/30">
-              <Bell className="w-8 h-8 text-blue-400" />
+          <div className="glass-panel p-10 rounded-3xl shadow-xl border border-white/50 relative">
+            <div className="w-20 h-20 bg-white/70 rounded-full flex items-center justify-center mb-6 mx-auto border border-white/80 shadow-sm">
+              <Bell className="w-10 h-10 text-amber-500" />
             </div>
-            <h1 className="text-2xl font-bold text-center mb-2">Zaterdag is Volgeboekt</h1>
-            <p className="text-slate-400 text-center mb-8">Zet jezelf op de Smart Waitlist. Zodra er iemand annuleert, krijg je als eerste een SMS om het bedje te claimen.</p>
+            <h1 className="text-3xl font-black font-serif text-center mb-3 text-stone-900">Volgeboekt</h1>
+            <p className="text-stone-500 text-center mb-8 font-medium">Zet jezelf op de Smart Waitlist. Zodra er iemand annuleert, krijg je als eerste een SMS om het bedje te claimen.</p>
             
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Naam</label>
-                <input type="text" placeholder="Jouw naam" className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
+                <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">Naam</label>
+                <input type="text" placeholder="Jouw naam" className="w-full bg-white/70 border border-white/80 rounded-2xl px-5 py-4 text-stone-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Telefoonnummer</label>
-                <input type="tel" placeholder="+31 6 12345678" className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
+                <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">Telefoonnummer</label>
+                <input type="tel" placeholder="+31 6 12345678" className="w-full bg-white/70 border border-white/80 rounded-2xl px-5 py-4 text-stone-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Gewenste Zone</label>
-                <select className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 appearance-none">
+                <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">Gewenste Zone</label>
+                <select className="w-full bg-white/70 border border-white/80 rounded-2xl px-5 py-4 text-stone-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 appearance-none shadow-sm cursor-pointer">
                   <option>Front Row (Eerste rij)</option>
                   <option>Standard Beach Bed</option>
                   <option>VIP Cabana</option>
@@ -37,18 +39,18 @@ export default function GuestWaitlistPage() {
               </div>
             </div>
             
-            <button onClick={() => setJoined(true)} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg py-4 rounded-xl shadow-lg mt-8 transition-colors">
+            <button onClick={() => setJoined(true)} className="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold text-xl py-5 rounded-2xl shadow-xl mt-10 transition-all hover:-translate-y-1">
               Zet mij op de wachtlijst
             </button>
           </div>
         ) : (
-          <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl text-center">
-            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6 mx-auto">
-              <CheckCircle2 className="w-10 h-10 text-green-400" />
+          <div className="glass-panel p-10 rounded-3xl shadow-xl border border-white/50 text-center relative">
+            <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6 mx-auto border border-emerald-100 shadow-sm">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500" />
             </div>
-            <h1 className="text-2xl font-bold mb-4">Je staat op de lijst!</h1>
-            <p className="text-slate-400 mb-6">Houd je telefoon in de gaten. Als er een plekje vrijkomt, heb je 10 minuten de tijd om de betaling te voltooien via de geheime link.</p>
-            <button onClick={() => setJoined(false)} className="text-blue-400 font-medium hover:text-blue-300">Terug</button>
+            <h1 className="text-3xl font-black font-serif text-stone-900 mb-4">Je staat op de lijst!</h1>
+            <p className="text-stone-500 font-medium mb-8 text-lg">Houd je telefoon in de gaten. Als er een plekje vrijkomt, heb je 10 minuten de tijd om de betaling te voltooien via de geheime link.</p>
+            <button onClick={() => setJoined(false)} className="text-stone-400 font-bold hover:text-stone-900 transition-colors uppercase tracking-wider text-sm">Terug naar formulier</button>
           </div>
         )}
       </div>
