@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Utensils } from 'lucide-react';
+import { Plus, Trash2, Utensils, Sparkles, UploadCloud, Loader2, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const EMOJI_OPTIONS = {
   Drankjes: ["🍹", "🍸", "🥂", "🍺", "🍷", "🍾", "🥃", "🧊", "🥤", "☕"],
@@ -15,6 +16,8 @@ export default function AdminMenuPage() {
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemEmoji, setNewItemEmoji] = useState('🍹');
+  const [isScanning, setIsScanning] = useState(false);
+  const [showScannerModal, setShowScannerModal] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('viesa_menu_items');
@@ -48,6 +51,26 @@ export default function AdminMenuPage() {
 
   const removeItem = (idx: number) => {
     setMenuItems(menuItems.filter((_, i) => i !== idx));
+  };
+
+  const handleMagicScan = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsScanning(true);
+    
+    // Simulate AI scanning delay
+    setTimeout(() => {
+      const scannedItems = [
+        { name: "Dom Pérignon Vintage", price: 350.0, img: "🍾" },
+        { name: "Wagyu Beef Sliders", price: 45.0, img: "🍔" },
+        { name: "Fresh Oysters (1/2 Dozen)", price: 32.0, img: "🦪" },
+        { name: "Truffle Fries", price: 14.5, img: "🍟" },
+        { name: "Pina Colada", price: 16.0, img: "🥥" }
+      ];
+      setMenuItems([...menuItems, ...scannedItems]);
+      setIsScanning(false);
+      setShowScannerModal(false);
+      alert("AI Scan Complete: 5 new items detected and added!");
+    }, 3500);
   };
 
   return (
@@ -90,7 +113,16 @@ export default function AdminMenuPage() {
         </div>
 
         <div className="border border-white/60 rounded-2xl p-6 bg-white/40 shadow-sm">
-          <h4 className="font-bold text-lg mb-4 font-serif text-stone-800">{t('adminMenuAddNew')}</h4>
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="font-bold text-lg font-serif text-stone-800">{t('adminMenuAddNew')}</h4>
+            <button 
+              onClick={() => setShowScannerModal(true)}
+              className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm border border-indigo-200"
+            >
+              <Sparkles className="w-4 h-4 text-indigo-500" />
+              AI Magic Scanner
+            </button>
+          </div>
           <div className="flex flex-col md:flex-row gap-4 items-center">
             
             {/* EMOJI SELECTOR */}
@@ -139,6 +171,46 @@ export default function AdminMenuPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Scanner Modal */}
+      <AnimatePresence>
+        {showScannerModal && (
+          <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md relative overflow-hidden">
+              <button onClick={() => !isScanning && setShowScannerModal(false)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-900"><X className="w-6 h-6" /></button>
+              
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600"><Sparkles className="w-6 h-6" /></div>
+                <h3 className="text-2xl font-bold font-serif text-stone-900">AI Magic Scanner</h3>
+              </div>
+              <p className="text-stone-500 mb-8">Upload a photo or PDF of your menu. Our AI will automatically detect dishes, prices, and assign the correct icons.</p>
+              
+              {isScanning ? (
+                <div className="flex flex-col items-center justify-center py-10 bg-indigo-50/50 rounded-2xl border-2 border-indigo-100 border-dashed">
+                  <div className="relative mb-6">
+                    <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
+                    <Sparkles className="w-5 h-5 text-amber-400 absolute -top-2 -right-2 animate-pulse" />
+                  </div>
+                  <h4 className="font-bold text-lg text-indigo-900 mb-1">Scanning Menu...</h4>
+                  <p className="text-sm text-indigo-600/70">Extracting prices and mapping emojis</p>
+                  
+                  {/* Fake progress bar */}
+                  <div className="w-48 h-1.5 bg-indigo-100 rounded-full mt-6 overflow-hidden">
+                    <div className="h-full bg-indigo-500 animate-[pulse_2s_ease-in-out_infinite]" style={{ width: '75%' }}></div>
+                  </div>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center py-12 bg-stone-50 hover:bg-stone-100 rounded-2xl border-2 border-stone-200 border-dashed cursor-pointer transition-colors group">
+                  <UploadCloud className="w-12 h-12 text-stone-400 group-hover:text-indigo-500 mb-4 transition-colors" />
+                  <span className="font-bold text-stone-700 mb-1">Click to Upload Menu</span>
+                  <span className="text-sm text-stone-400">Supports PDF, JPG, PNG</span>
+                  <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleMagicScan} />
+                </label>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

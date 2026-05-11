@@ -91,7 +91,11 @@ export default function AdminVIPPage() {
                  <h3 className="font-bold text-lg text-slate-900 pr-8">{zone.name}</h3>
                  <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-bold">{t('adminVipActive')}</span>
                </div>
-               <p className="text-slate-500 text-sm mb-4">{zone.capacity}</p>
+               <p className="text-slate-500 text-sm mb-4">
+                 {zone.capacity === "4 Cabanas beschikbaar (Max 8 pers.)" ? t('adminVipMockCapacity1') : 
+                  zone.capacity === "2 Lounges beschikbaar (Max 12 pers.)" ? t('adminVipMockCapacity2') : 
+                  zone.capacity === "Nieuwe Zone" ? t('adminVipNewZoneDefault') : zone.capacity}
+               </p>
                <div className="bg-slate-50 p-3 rounded-lg flex justify-between items-center border border-slate-100">
                  <span className="text-sm font-medium text-slate-700">{t('adminVipMinSpend')}</span>
                  <span className="font-bold text-indigo-600">€ {zone.minSpend.toFixed(2)}</span>

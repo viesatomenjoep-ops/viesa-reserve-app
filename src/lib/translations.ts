@@ -75,9 +75,25 @@ export const translations = {
     adminVipPrice: "Price",
     adminVipAction: "Action",
     adminVipNewBottle: "New Bottle",
+    adminVipMockCapacity1: "4 Cabanas available (Max 8 pers.)",
+    adminVipMockCapacity2: "2 Lounges available (Max 12 pers.)",
+    adminVipNewZoneDefault: "New Zone",
     adminMapAddBeachclub: "Add Beachclub",
     adminMapVenueSettings: "Venue Settings",
     adminMapSave: "Save Map",
+
+    // Admin Yield
+    adminYieldPageTitle: "Yield Management",
+    adminYieldPageDesc: "Dynamic Pricing based on the weather forecast API.",
+    adminYieldAutopilot: "Autopilot Enabled",
+    adminYieldSunnyWarm: "Sunny & Warm",
+    adminYieldSunnyDesc: "> 25°C, Chance of rain < 10%",
+    adminYieldAction: "Action:",
+    adminYieldBaseBedPrice: "Base Bed Price",
+    adminYieldCloudyRain: "Cloudy / Rain",
+    adminYieldCloudyDesc: "< 20°C or Rain",
+    adminYieldNoChange: "No change",
+    adminYieldAddRule: "+ Add New Rule",
 
     // Admin Portal
     adminDashboardTitle: "Admin Dashboard",
@@ -179,9 +195,25 @@ export const translations = {
     adminVipPrice: "Precio",
     adminVipAction: "Acción",
     adminVipNewBottle: "Nueva Botella",
+    adminVipMockCapacity1: "4 Cabañas disponibles (Máx 8 pers.)",
+    adminVipMockCapacity2: "2 Lounges disponibles (Máx 12 pers.)",
+    adminVipNewZoneDefault: "Nueva Zona",
     adminMapAddBeachclub: "Añadir Club de Playa",
     adminMapVenueSettings: "Configuración del Lugar",
     adminMapSave: "Guardar Mapa",
+
+    // Admin Yield
+    adminYieldPageTitle: "Gestión de Rendimiento",
+    adminYieldPageDesc: "Precios dinámicos basados en la API del pronóstico del tiempo.",
+    adminYieldAutopilot: "Piloto Automático Activado",
+    adminYieldSunnyWarm: "Soleado y Cálido",
+    adminYieldSunnyDesc: "> 25°C, Probabilidad de lluvia < 10%",
+    adminYieldAction: "Acción:",
+    adminYieldBaseBedPrice: "Precio Cama Base",
+    adminYieldCloudyRain: "Nublado / Lluvia",
+    adminYieldCloudyDesc: "< 20°C o Lluvia",
+    adminYieldNoChange: "Sin cambios",
+    adminYieldAddRule: "+ Añadir Nueva Regla",
 
     // Admin Portal
     adminDashboardTitle: "Panel de Administración",
@@ -283,9 +315,25 @@ export const translations = {
     adminVipPrice: "Prijs",
     adminVipAction: "Actie",
     adminVipNewBottle: "Nieuwe Fles",
+    adminVipMockCapacity1: "4 Cabanas beschikbaar (Max 8 pers.)",
+    adminVipMockCapacity2: "2 Lounges beschikbaar (Max 12 pers.)",
+    adminVipNewZoneDefault: "Nieuwe Zone",
     adminMapAddBeachclub: "Beachclub Toevoegen",
     adminMapVenueSettings: "Venue Settings",
     adminMapSave: "Kaart Opslaan",
+
+    // Admin Yield
+    adminYieldPageTitle: "Yield Management",
+    adminYieldPageDesc: "Dynamic Pricing op basis van de weersverwachting API.",
+    adminYieldAutopilot: "Autopilot Ingeschakeld",
+    adminYieldSunnyWarm: "Zonnig & Warm",
+    adminYieldSunnyDesc: "> 25°C, Kans op regen < 10%",
+    adminYieldAction: "Actie:",
+    adminYieldBaseBedPrice: "Basisbed Prijs",
+    adminYieldCloudyRain: "Bewolkt / Regen",
+    adminYieldCloudyDesc: "< 20°C of Regen",
+    adminYieldNoChange: "Geen wijziging",
+    adminYieldAddRule: "+ Nieuwe Regel Toevoegen",
 
     // Admin Portal
     adminDashboardTitle: "Admin Dashboard",
