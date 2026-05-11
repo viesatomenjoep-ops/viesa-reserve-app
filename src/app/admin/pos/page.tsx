@@ -57,11 +57,11 @@ export default function AdminPOSPage() {
               <div key={order.id} className="bg-white/60 border border-white/80 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-bold font-serif text-lg text-stone-900">
-                    {order.bed === "Cabana 4" ? t('adminPosBed4') : order.bed === "Bed 12" ? t('adminPosBed12') : order.bed === "Bed 42" ? t('adminPosBed42') : order.bed}
+                    {order.bed === "Cabana 4" ? t('adminPosBed4') : order.bed === "Bed 12" ? t('adminPosBed12') : order.bed === "Bed 42" ? t('adminPosBed42') : order.bed === "VIP Cabana 2" ? t('adminPosBedVIP2') : order.bed}
                   </h3>
                   <span className="flex items-center gap-1 text-xs text-stone-500 bg-white/80 px-2 py-1 rounded-lg">
                     <Clock className="w-3 h-3"/> 
-                    {order.time === "2 min geleden" ? t('adminPosTime2') : order.time === "5 min geleden" ? t('adminPosTime5') : order.time === "12 min geleden" ? t('adminPosTime12') : order.time}
+                    {order.time === "2 min geleden" ? t('adminPosTime2') : order.time === "5 min geleden" ? t('adminPosTime5') : order.time === "12 min geleden" ? t('adminPosTime12') : order.time === "Zojuist" ? t('adminPosJustNow') : order.time}
                   </span>
                 </div>
                 <ul className="text-sm text-stone-700 font-medium mb-4 space-y-1">
@@ -84,11 +84,11 @@ export default function AdminPOSPage() {
               <div key={order.id} className="bg-blue-50/80 border border-blue-200/50 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-bold font-serif text-lg text-blue-900">
-                    {order.bed === "Cabana 4" ? t('adminPosBed4') : order.bed === "Bed 12" ? t('adminPosBed12') : order.bed === "Bed 42" ? t('adminPosBed42') : order.bed}
+                    {order.bed === "Cabana 4" ? t('adminPosBed4') : order.bed === "Bed 12" ? t('adminPosBed12') : order.bed === "Bed 42" ? t('adminPosBed42') : order.bed === "VIP Cabana 2" ? t('adminPosBedVIP2') : order.bed}
                   </h3>
                   <span className="flex items-center gap-1 text-xs text-blue-700 bg-white/80 px-2 py-1 rounded-lg">
                     <Clock className="w-3 h-3"/> 
-                    {order.time === "2 min geleden" ? t('adminPosTime2') : order.time === "5 min geleden" ? t('adminPosTime5') : order.time === "12 min geleden" ? t('adminPosTime12') : order.time}
+                    {order.time === "2 min geleden" ? t('adminPosTime2') : order.time === "5 min geleden" ? t('adminPosTime5') : order.time === "12 min geleden" ? t('adminPosTime12') : order.time === "Zojuist" ? t('adminPosJustNow') : order.time}
                   </span>
                 </div>
                 <ul className="text-sm text-blue-800 font-medium mb-4 space-y-1">
@@ -111,11 +111,11 @@ export default function AdminPOSPage() {
               <div key={order.id} className="bg-emerald-50/80 border border-emerald-200/50 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-bold font-serif text-lg text-emerald-900">
-                    {order.bed === "Cabana 4" ? t('adminPosBed4') : order.bed === "Bed 12" ? t('adminPosBed12') : order.bed === "Bed 42" ? t('adminPosBed42') : order.bed}
+                    {order.bed === "Cabana 4" ? t('adminPosBed4') : order.bed === "Bed 12" ? t('adminPosBed12') : order.bed === "Bed 42" ? t('adminPosBed42') : order.bed === "VIP Cabana 2" ? t('adminPosBedVIP2') : order.bed}
                   </h3>
                   <span className="flex items-center gap-1 text-xs text-emerald-700 bg-white/80 px-2 py-1 rounded-lg">
                     <Clock className="w-3 h-3"/> 
-                    {order.time === "2 min geleden" ? t('adminPosTime2') : order.time === "5 min geleden" ? t('adminPosTime5') : order.time === "12 min geleden" ? t('adminPosTime12') : order.time}
+                    {order.time === "2 min geleden" ? t('adminPosTime2') : order.time === "5 min geleden" ? t('adminPosTime5') : order.time === "12 min geleden" ? t('adminPosTime12') : order.time === "Zojuist" ? t('adminPosJustNow') : order.time}
                   </span>
                 </div>
                 <ul className="text-sm text-emerald-800 font-medium mb-4 space-y-1">

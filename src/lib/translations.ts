@@ -126,6 +126,8 @@ export const translations = {
     adminPosBed4: "Cabana 4",
     adminPosBed12: "Bed 12",
     adminPosBed42: "Bed 42",
+    adminPosBedVIP2: "VIP Cabana 2",
+    adminPosJustNow: "Just now",
 
     // Admin Waitlist
     adminWaitlistPageTitle: "Smart Waitlist",
@@ -276,6 +278,8 @@ export const translations = {
     adminPosBed4: "Cabaña 4",
     adminPosBed12: "Cama 12",
     adminPosBed42: "Cama 42",
+    adminPosBedVIP2: "Cabaña VIP 2",
+    adminPosJustNow: "Justo ahora",
 
     // Admin Waitlist
     adminWaitlistPageTitle: "Lista de Espera Inteligente",
@@ -426,6 +430,8 @@ export const translations = {
     adminPosBed4: "Cabana 4",
     adminPosBed12: "Bed 12",
     adminPosBed42: "Bed 42",
+    adminPosBedVIP2: "VIP Cabana 2",
+    adminPosJustNow: "Zojuist",
 
     // Admin Waitlist
     adminWaitlistPageTitle: "Smart Waitlist",
