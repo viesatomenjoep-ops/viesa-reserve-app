@@ -79,10 +79,21 @@ CREATE TABLE IF NOT EXISTS menu_items (
 );
 
 -- ==========================================
--- REALTIME SUBSCRIPTIONS
+-- REALTIME SUBSCRIPTIONS (Safe Add)
 -- ==========================================
-ALTER PUBLICATION supabase_realtime ADD TABLE pos_orders;
-ALTER PUBLICATION supabase_realtime ADD TABLE smart_waitlist;
+DO $$
+BEGIN
+  -- Add pos_orders if not exists
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'pos_orders') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE pos_orders;
+  END IF;
+  
+  -- Add smart_waitlist if not exists
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'smart_waitlist') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE smart_waitlist;
+  END IF;
+END
+$$;
 
 -- ==========================================
 -- ROW LEVEL SECURITY (RLS) - Permissive for MVP
