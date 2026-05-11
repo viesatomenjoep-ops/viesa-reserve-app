@@ -37,7 +37,7 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
   const [beds, setBeds] = useState<Bed[]>([]);
   const [allBeds, setAllBeds] = useState<{area_id: string, status: string}[]>([]);
   const [allVenues, setAllVenues] = useState<{id: string, name: string}[]>([]);
-  const [venue, setVenue] = useState<{id?: string, name: string, map_image_url: string}>({ name: 'VIESA Beach Club', map_image_url: '' });
+  const [venue, setVenue] = useState<{id?: string, name: string, map_image_url: string} | null>(null);
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
   
   // Mobile-first: Default to LIST view. User can toggle to MAP.
@@ -98,7 +98,7 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
     if (bedsData) setAllBeds(bedsData as any);
     if (locData) {
       // Filter by venue_id if it exists, otherwise show all
-      const targetVenueId = venue ? venue.id : (venuesData?.[0]?.id);
+      const targetVenueId = venue?.id || venuesData?.[0]?.id;
       const filteredLocs = locData.filter(l => l.venue_id === targetVenueId || !l.venue_id);
       filteredLocs.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
       setLocations(filteredLocs);
@@ -321,12 +321,12 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
         // Desktop-Friendly Interactive Map
         <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 bg-stone-100"
              style={{ 
-               backgroundImage: venue.map_image_url ? `url('${venue.map_image_url}')` : 'none', 
+               backgroundImage: venue?.map_image_url ? `url('${venue.map_image_url}')` : 'none', 
                backgroundSize: 'cover', 
                backgroundPosition: 'center' 
              }}>
           
-          {!venue.map_image_url && (
+          {!venue?.map_image_url && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-stone-300 font-bold text-xl sm:text-3xl opacity-50 uppercase tracking-widest text-center px-4">Map Coming Soon</span>
             </div>
