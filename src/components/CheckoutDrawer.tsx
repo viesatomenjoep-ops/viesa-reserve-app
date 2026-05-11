@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import type { Bed } from './AdminBedEditor';
 import { useLanguage } from '../contexts/LanguageContext';
 import { X, CheckCircle2 } from 'lucide-react';
@@ -14,6 +15,8 @@ interface CheckoutDrawerProps {
 export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
   const { t } = useLanguage();
   const [step, setStep] = useState<1 | 2>(1);
+  const [paymentMethod, setPaymentMethod] = useState<string>('ideal');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,11 +33,33 @@ export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
     setStep(2);
   };
 
-  const handleMockPayment = async () => {
-    // This would call our checkout API route or mock checkout
-    alert("Payment successful! Webhook will be triggered.");
+  const handlePayment = async () => {
+    setIsProcessing(true);
     
-    // Simulate API call to webhook
+    // Simulate payment gateway delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+      try {
+        // 1. Update Bed Status to BOOKED
+        await supabase.from('beds').update({ status: 'BOOKED' }).eq('id', bed?.id);
+        
+        // 2. Insert into Reservations table
+        await supabase.from('reservations').insert([{
+          bed_id: bed?.id,
+          guest_name: formData.name,
+          guest_phone: formData.phone,
+          guest_email: formData.email,
+          reservation_date: formData.date,
+          status: 'CONFIRMED',
+          total_spent: bed?.price
+        }]);
+      } catch (err) {
+        console.error("Database error during checkout:", err);
+      }
+    }
+
+    // Trigger WhatsApp webhook
     try {
       await fetch('/api/webhooks/booking-success', {
         method: 'POST',
@@ -51,8 +76,14 @@ export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
       console.error(e);
     }
 
+    setIsProcessing(false);
+    alert(`Betaling van €${bed?.price} via ${paymentMethod.toUpperCase()} is succesvol afgerond! Je bed is nu definitief gereserveerd.`);
+    
     onClose();
     setStep(1);
+    
+    // Force a page reload to update the map blocks to RED (booked)
+    window.location.reload();
   };
 
   return (
@@ -166,10 +197,6 @@ export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
                        <span className="font-medium text-stone-900">{bed.name}</span>
                      </div>
                      <div className="flex justify-between border-b border-stone-200 pb-4">
-                       <span className="text-stone-500">{t('selectDate')}</span>
-                       <span className="font-medium text-stone-900">{formData.date}</span>
-                     </div>
-                     <div className="flex justify-between border-b border-stone-200 pb-4">
                        <span className="text-stone-500">{t('name')}</span>
                        <span className="font-medium text-stone-900">{formData.name}</span>
                      </div>
@@ -179,12 +206,34 @@ export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
                      </div>
                   </div>
 
+                  {/* Betaalmethoden (Payment Options) */}
+                  <div className="space-y-3">
+                     <p className="font-bold text-stone-900 text-sm">Kies Betaalmethode</p>
+                     <div className="grid grid-cols-2 gap-3">
+                       <button onClick={() => setPaymentMethod('ideal')} className={`p-4 border-2 rounded-xl flex items-center justify-center gap-3 transition-all ${paymentMethod === 'ideal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-stone-200 bg-white hover:bg-stone-50'}`}>
+                         <span className="text-xl font-black italic text-[#CC0066]">iDEAL</span>
+                       </button>
+                       <button onClick={() => setPaymentMethod('creditcard')} className={`p-4 border-2 rounded-xl flex items-center justify-center gap-3 transition-all ${paymentMethod === 'creditcard' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-stone-200 bg-white hover:bg-stone-50'}`}>
+                         <span className="text-xl">💳</span>
+                         <span className="text-sm font-bold">Creditcard</span>
+                       </button>
+                       <button onClick={() => setPaymentMethod('applepay')} className={`p-4 border-2 rounded-xl flex items-center justify-center gap-3 transition-all ${paymentMethod === 'applepay' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-stone-200 bg-white hover:bg-stone-50'}`}>
+                         <span className="text-xl"></span>
+                         <span className="text-sm font-bold">Pay</span>
+                       </button>
+                       <button onClick={() => setPaymentMethod('bancontact')} className={`p-4 border-2 rounded-xl flex items-center justify-center gap-3 transition-all ${paymentMethod === 'bancontact' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-stone-200 bg-white hover:bg-stone-50'}`}>
+                         <span className="text-xl font-bold text-blue-800">Bancontact</span>
+                       </button>
+                     </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-4 mt-8">
                     <button 
-                      onClick={handleMockPayment}
-                      className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-medium text-lg hover:bg-emerald-700 transition-colors flex items-center justify-center shadow-lg shadow-emerald-600/30"
+                      onClick={handlePayment}
+                      disabled={isProcessing}
+                      className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-medium text-lg hover:bg-emerald-700 transition-colors flex items-center justify-center shadow-lg shadow-emerald-600/30 disabled:opacity-50"
                     >
-                      Pay €{bed.price} Now
+                      {isProcessing ? 'Verwerken...' : `Betaal €${bed.price} Nu`}
                     </button>
                     
                     <a 
