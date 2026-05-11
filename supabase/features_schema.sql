@@ -99,21 +99,27 @@ $$;
 -- ROW LEVEL SECURITY (RLS) - Permissive for MVP
 -- ==========================================
 ALTER TABLE pos_orders ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on pos_orders" ON pos_orders;
 CREATE POLICY "Allow public read/write on pos_orders" ON pos_orders FOR ALL USING (true) WITH CHECK (true);
 
 ALTER TABLE pos_order_items ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on pos_order_items" ON pos_order_items;
 CREATE POLICY "Allow public read/write on pos_order_items" ON pos_order_items FOR ALL USING (true) WITH CHECK (true);
 
 ALTER TABLE smart_waitlist ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on smart_waitlist" ON smart_waitlist;
 CREATE POLICY "Allow public read/write on smart_waitlist" ON smart_waitlist FOR ALL USING (true) WITH CHECK (true);
 
 ALTER TABLE yield_rules ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on yield_rules" ON yield_rules;
 CREATE POLICY "Allow public read/write on yield_rules" ON yield_rules FOR ALL USING (true) WITH CHECK (true);
 
 ALTER TABLE vip_bottles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on vip_bottles" ON vip_bottles;
 CREATE POLICY "Allow public read/write on vip_bottles" ON vip_bottles FOR ALL USING (true) WITH CHECK (true);
 
 ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read/write on menu_items" ON menu_items;
 CREATE POLICY "Allow public read/write on menu_items" ON menu_items FOR ALL USING (true) WITH CHECK (true);
 
 -- ==========================================
