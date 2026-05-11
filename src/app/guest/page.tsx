@@ -2,13 +2,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { QrCode, Clock, Umbrella, Gem } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function GuestPortal() {
+  const { t } = useLanguage();
   const experiences = [
-    { title: "Bed Service (QR Menu)", desc: "Bestel drankjes direct vanaf je strandbed.", icon: <QrCode className="w-8 h-8 text-amber-500" />, href: "/guest/menu" },
-    { title: "Smart Waitlist", desc: "Krijg een seintje als er een bedje vrijkomt.", icon: <Clock className="w-8 h-8 text-blue-500" />, href: "/guest/waitlist" },
-    { title: "Live Availability", desc: "Boek met live weer-gebaseerde prijzen.", icon: <Umbrella className="w-8 h-8 text-emerald-500" />, href: "/" },
-    { title: "VIP Cabana Booking", desc: "Reserveer een cabana met pre-order flessen.", icon: <Gem className="w-8 h-8 text-purple-500" />, href: "/guest/vip" },
+    { title: t('guestMenuTitle'), desc: t('guestMenuDesc'), icon: <QrCode className="w-8 h-8 text-amber-500" />, href: "/guest/menu" },
+    { title: t('adminWaitlist'), desc: t('waitlistDesc'), icon: <Clock className="w-8 h-8 text-blue-500" />, href: "/guest/waitlist" },
+    { title: "Live Availability", desc: t('welcomeText'), icon: <Umbrella className="w-8 h-8 text-emerald-500" />, href: "/" },
+    { title: t('vipTitle'), desc: t('vipDesc'), icon: <Gem className="w-8 h-8 text-purple-500" />, href: "/guest/vip" },
   ];
 
   return (
@@ -22,8 +24,8 @@ export default function GuestPortal() {
           <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-white/80 shadow-lg border border-white/50 flex items-center justify-center">
              <span className="text-4xl font-black text-stone-900 font-serif">VR</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-4 font-serif text-[#3d3935] tracking-tight">Viesa Beach Experience</h1>
-          <p className="text-stone-500 text-xl font-medium">Interactieve demo portal voor de gast-voorkant. Kies wat je wilt testen.</p>
+          <h1 className="text-5xl md:text-6xl font-black mb-4 font-serif text-[#3d3935] tracking-tight">{t('guestPortalTitle')}</h1>
+          <p className="text-stone-500 text-xl font-medium">{t('guestPortalDesc')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

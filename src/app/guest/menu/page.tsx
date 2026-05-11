@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, ShoppingBag } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function GuestMenuPage() {
+  const { t } = useLanguage();
   const [cart, setCart] = useState<{name: string, price: number, qty: number}[]>([]);
   const [menu, setMenu] = useState<{name: string, price: number, img: string}[]>([]);
   const [selectedBed, setSelectedBed] = useState('Bed 42');
@@ -62,11 +64,11 @@ export default function GuestMenuPage() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
 
       <div className="p-8 text-center relative z-10 floating">
-        <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight mb-2">Strand Menu</h1>
-        <p className="text-stone-500 text-lg mb-6">Bestel direct vanaf je bedje.</p>
+        <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight mb-2">{t('guestMenuTitle')}</h1>
+        <p className="text-stone-500 text-lg mb-6">{t('guestMenuDesc')}</p>
         
         <div className="max-w-xs mx-auto">
-          <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">Kies je locatie</label>
+          <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wider">{t('guestLocation')}</label>
           <select 
             value={selectedBed}
             onChange={(e) => setSelectedBed(e.target.value)}
@@ -109,7 +111,7 @@ export default function GuestMenuPage() {
       {isOrdered && (
         <div className="fixed top-10 left-0 right-0 z-50 flex justify-center animate-in slide-in-from-top-10">
           <div className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2">
-            <span>✅</span> Bestelling succesvol geplaatst voor {selectedBed}!
+            <span>✅</span> {t('guestOrderSuccess')} {selectedBed}!
           </div>
         </div>
       )}
@@ -120,7 +122,7 @@ export default function GuestMenuPage() {
             <div className="flex items-center justify-between text-stone-900 font-bold text-xl px-2">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="w-6 h-6" />
-                <span>{cart.reduce((acc, curr) => acc + curr.qty, 0)} items</span>
+                <span>{cart.reduce((acc, curr) => acc + curr.qty, 0)} {t('guestOrderItems')}</span>
               </div>
               <div className="font-serif">€{cart.reduce((acc, curr) => acc + (curr.price * curr.qty), 0).toFixed(2)}</div>
             </div>
@@ -128,7 +130,7 @@ export default function GuestMenuPage() {
               onClick={placeOrder}
               className="w-full bg-stone-900 text-white px-8 py-5 rounded-2xl font-bold text-lg hover:bg-stone-800 transition-all shadow-xl hover:-translate-y-1"
             >
-              Bestel & Zet op Rekening ({selectedBed})
+              {t('guestOrderBtn')} ({selectedBed})
             </button>
           </div>
         </div>

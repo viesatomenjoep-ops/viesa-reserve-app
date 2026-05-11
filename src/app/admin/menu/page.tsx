@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Utensils } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const EMOJI_OPTIONS = {
   Drankjes: ["🍹", "🍸", "🥂", "🍺", "🍷", "🍾", "🥃", "🧊", "🥤", "☕"],
@@ -9,6 +10,7 @@ const EMOJI_OPTIONS = {
 };
 
 export default function AdminMenuPage() {
+  const { t } = useLanguage();
   const [menuItems, setMenuItems] = useState<{name: string, price: number, img: string}[]>([]);
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
@@ -54,20 +56,20 @@ export default function AdminMenuPage() {
       <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl floating pointer-events-none z-0"></div>
 
       <div className="mb-10 relative z-10">
-        <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">QR Menu Beheer</h1>
-        <p className="text-stone-500 text-lg">Beheer de gerechten en drankjes voor de strandbed bestellingen (Synchroniseert met de database).</p>
+        <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">{t('adminMenuTitle')}</h1>
+        <p className="text-stone-500 text-lg">{t('adminMenuDesc')}</p>
       </div>
 
       <div className="glass-panel rounded-3xl p-8 shadow-sm relative z-10">
-        <h2 className="font-bold font-serif text-2xl mb-8 flex items-center gap-3"><Utensils className="w-6 h-6 text-amber-500" /> Strand Menu</h2>
+        <h2 className="font-bold font-serif text-2xl mb-8 flex items-center gap-3"><Utensils className="w-6 h-6 text-amber-500" /> {t('guestMenuTitle')}</h2>
         
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse mb-10">
             <thead>
               <tr className="border-b border-white/40 text-stone-500 text-sm tracking-wider uppercase">
-                <th className="pb-4 font-bold">Item</th>
-                <th className="pb-4 font-bold">Prijs</th>
-                <th className="pb-4 font-bold text-right">Actie</th>
+                <th className="pb-4 font-bold">{t('adminMenuTableItem')}</th>
+                <th className="pb-4 font-bold">{t('adminMenuTablePrice')}</th>
+                <th className="pb-4 font-bold text-right">{t('adminMenuTableAction')}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -88,7 +90,7 @@ export default function AdminMenuPage() {
         </div>
 
         <div className="border border-white/60 rounded-2xl p-6 bg-white/40 shadow-sm">
-          <h4 className="font-bold text-lg mb-4 font-serif text-stone-800">Nieuw Menu Item Toevoegen</h4>
+          <h4 className="font-bold text-lg mb-4 font-serif text-stone-800">{t('adminMenuAddNew')}</h4>
           <div className="flex flex-col md:flex-row gap-4 items-center">
             
             {/* EMOJI SELECTOR */}
@@ -132,7 +134,7 @@ export default function AdminMenuPage() {
               onClick={addItem} 
               className="w-full md:w-auto bg-stone-900 text-white px-8 py-3 rounded-xl text-base font-bold hover:bg-stone-800 transition-all shadow-md flex items-center justify-center gap-2"
             >
-              <Plus className="w-5 h-5"/> Opslaan
+              <Plus className="w-5 h-5"/> {t('adminMenuSave')}
             </button>
           </div>
         </div>

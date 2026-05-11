@@ -2,13 +2,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Coffee, Users, TrendingUp, Star } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AdminDashboard() {
+  const { t } = useLanguage();
   const modules = [
-    { title: "F&B Orders (POS)", desc: "Live bestellingen vanaf de strandbedjes", icon: <Coffee className="w-8 h-8 text-amber-500" />, href: "/admin/pos" },
-    { title: "Smart Waitlist", desc: "Beheer de wachtlijst en no-shows", icon: <Users className="w-8 h-8 text-blue-500" />, href: "/admin/waitlist" },
-    { title: "Dynamic Pricing", desc: "Regels voor prijsaanpassingen o.b.v. weer", icon: <TrendingUp className="w-8 h-8 text-emerald-500" />, href: "/admin/yield" },
-    { title: "VIP Management", desc: "Minimum spends & Cabana beheer", icon: <Star className="w-8 h-8 text-purple-500" />, href: "/admin/vip" },
+    { title: t('adminPOS'), desc: t('adminPOSDesc'), icon: <Coffee className="w-8 h-8 text-amber-500" />, href: "/admin/pos" },
+    { title: t('adminWaitlist'), desc: t('adminWaitlistDesc'), icon: <Users className="w-8 h-8 text-blue-500" />, href: "/admin/waitlist" },
+    { title: t('adminYield'), desc: t('adminYieldDesc'), icon: <TrendingUp className="w-8 h-8 text-emerald-500" />, href: "/admin/yield" },
+    { title: t('adminVIP'), desc: t('adminVIPDesc'), icon: <Star className="w-8 h-8 text-purple-500" />, href: "/admin/vip" },
   ];
 
   return (
@@ -17,8 +19,8 @@ export default function AdminDashboard() {
       <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
 
       <div className="relative z-10">
-        <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">Admin Dashboard</h1>
-        <p className="text-stone-500 mb-10 text-lg">Kies een module om te beheren.</p>
+        <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">{t('adminDashboardTitle')}</h1>
+        <p className="text-stone-500 mb-10 text-lg">{t('adminDashboardDesc')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">

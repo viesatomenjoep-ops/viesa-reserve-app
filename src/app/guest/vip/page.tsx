@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Star, Plus, Minus, Check } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function GuestVIPPage() {
+  const { t } = useLanguage();
   const [selectedBottles, setSelectedBottles] = useState<{name: string, price: number, qty: number}[]>([]);
   const [bottles, setBottles] = useState<{name: string, price: number, img: string}[]>([]);
   const minSpend = 500;
@@ -47,21 +49,21 @@ export default function GuestVIPPage() {
 
       <div className="p-8 text-center relative z-10">
         <Star className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight mb-2">VIP Cabana Reservering</h1>
-        <p className="text-stone-500 text-lg">Kies exclusieve flessen om je minimum spend te behalen en de cabana te ontgrendelen.</p>
+        <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight mb-2">{t('vipTitle')}</h1>
+        <p className="text-stone-500 text-lg">{t('vipDesc')}</p>
       </div>
 
       <div className="p-6 max-w-lg mx-auto relative z-20">
         <div className="glass-panel rounded-3xl p-6 mb-8">
           <div className="flex justify-between items-end mb-4">
             <div>
-              <p className="text-stone-500 text-sm mb-1 uppercase tracking-wider font-semibold">Minimum Spend Doel</p>
+              <p className="text-stone-500 text-sm mb-1 uppercase tracking-wider font-semibold">{t('vipMinSpendTarget')}</p>
               <p className="text-3xl font-bold font-serif">€{currentSpend.toFixed(2)} <span className="text-stone-400 text-xl">/ €{minSpend}</span></p>
             </div>
             {remaining === 0 ? (
-              <span className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm"><Check className="w-4 h-4"/> Gehaald</span>
+              <span className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm"><Check className="w-4 h-4"/> {t('vipReached')}</span>
             ) : (
-              <span className="text-amber-600 text-sm font-medium bg-amber-50 px-3 py-1 rounded-full border border-amber-100">Nog €{remaining.toFixed(2)} te gaan</span>
+              <span className="text-amber-600 text-sm font-medium bg-amber-50 px-3 py-1 rounded-full border border-amber-100">€{remaining.toFixed(2)} {t('vipToGo')}</span>
             )}
           </div>
           <div className="w-full bg-white rounded-full h-4 overflow-hidden border border-stone-200 shadow-inner">
@@ -69,7 +71,7 @@ export default function GuestVIPPage() {
           </div>
         </div>
 
-        <h2 className="text-xl font-bold font-serif mb-6 text-center">Pre-Order Flessen Menu</h2>
+        <h2 className="text-xl font-bold font-serif mb-6 text-center">{t('vipPreOrderMenu')}</h2>
         <div className="space-y-6">
           {bottles.map((b, i) => (
             <div key={i} className="glass-panel rounded-3xl p-4 pr-6 flex items-center justify-between hover:-translate-y-1 transition-all duration-300">
@@ -99,7 +101,7 @@ export default function GuestVIPPage() {
           disabled={remaining > 0} 
           className={`w-full max-w-lg mx-auto block py-5 rounded-2xl font-bold text-xl transition-all shadow-xl ${remaining === 0 ? 'bg-stone-900 text-white hover:bg-stone-800 hover:-translate-y-1' : 'bg-stone-200 text-stone-400 cursor-not-allowed'}`}
         >
-          {remaining === 0 ? "Afrekenen & Bevestigen" : "Haal minimum spend om te boeken"}
+          {remaining === 0 ? t('vipCheckoutBtn') : t('vipNeedSpendBtn')}
         </button>
       </div>
     </div>
