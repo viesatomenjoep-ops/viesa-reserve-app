@@ -18,6 +18,7 @@ export default function AdminMenuPage() {
   const [newItemEmoji, setNewItemEmoji] = useState('🍹');
   const [isScanning, setIsScanning] = useState(false);
   const [showScannerModal, setShowScannerModal] = useState(false);
+  const [magicUrl, setMagicUrl] = useState('');
 
   useEffect(() => {
     const saved = localStorage.getItem('viesa_menu_items');
@@ -71,6 +72,27 @@ export default function AdminMenuPage() {
       setShowScannerModal(false);
       alert("AI Scan Complete: 5 new items detected and added!");
     }, 3500);
+  };
+
+  const handleUrlScan = () => {
+    if (!magicUrl) return;
+    setIsScanning(true);
+    
+    // Simulate AI scanning delay for URL
+    setTimeout(() => {
+      const scannedItems = [
+        { name: "Spicy Tuna Roll", price: 22.0, img: "🍣" },
+        { name: "Lychee Martini", price: 18.0, img: "🍸" },
+        { name: "Burrata Salad", price: 24.0, img: "🥗" },
+        { name: "Ceviche Mixto", price: 26.0, img: "🦐" },
+        { name: "Sangria Pitcher", price: 35.0, img: "🍷" }
+      ];
+      setMenuItems([...menuItems, ...scannedItems]);
+      setIsScanning(false);
+      setShowScannerModal(false);
+      setMagicUrl('');
+      alert(`AI Scan Complete: 5 items extracted from ${magicUrl}`);
+    }, 4000);
   };
 
   return (
@@ -200,12 +222,37 @@ export default function AdminMenuPage() {
                   </div>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center py-12 bg-stone-50 hover:bg-stone-100 rounded-2xl border-2 border-stone-200 border-dashed cursor-pointer transition-colors group">
-                  <UploadCloud className="w-12 h-12 text-stone-400 group-hover:text-indigo-500 mb-4 transition-colors" />
-                  <span className="font-bold text-stone-700 mb-1">Click to Upload Menu</span>
-                  <span className="text-sm text-stone-400">Supports PDF, JPG, PNG</span>
-                  <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleMagicScan} />
-                </label>
+                <div className="space-y-6">
+                  <label className="flex flex-col items-center justify-center py-8 bg-stone-50 hover:bg-stone-100 rounded-2xl border-2 border-stone-200 border-dashed cursor-pointer transition-colors group">
+                    <UploadCloud className="w-10 h-10 text-stone-400 group-hover:text-indigo-500 mb-3 transition-colors" />
+                    <span className="font-bold text-stone-700 mb-1">Upload Menu File</span>
+                    <span className="text-sm text-stone-400">Supports PDF, JPG, PNG</span>
+                    <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleMagicScan} />
+                  </label>
+                  
+                  <div className="relative flex items-center py-2">
+                    <div className="flex-grow border-t border-stone-200"></div>
+                    <span className="flex-shrink-0 mx-4 text-stone-400 text-sm font-medium uppercase tracking-wider">or paste URL</span>
+                    <div className="flex-grow border-t border-stone-200"></div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <input 
+                      type="url" 
+                      placeholder="https://example.com/menu" 
+                      value={magicUrl}
+                      onChange={e => setMagicUrl(e.target.value)}
+                      className="flex-1 px-4 py-3 border border-stone-200 bg-stone-50 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    />
+                    <button 
+                      onClick={handleUrlScan}
+                      disabled={!magicUrl}
+                      className="bg-indigo-600 text-white px-5 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      Scan URL
+                    </button>
+                  </div>
+                </div>
               )}
             </motion.div>
           </div>
