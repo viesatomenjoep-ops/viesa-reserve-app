@@ -57,8 +57,6 @@ export default function GuestMenuPage() {
   const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-32">
-      <div className="bg-slate-900 text-white p-6 pt-12 pb-8 rounded-b-3xl shadow-lg sticky top-0 z-10">
     <div className="min-h-screen bg-sand-gradient font-sans pb-32 relative overflow-hidden text-[#3d3935]">
       {/* Decorative Orbs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
