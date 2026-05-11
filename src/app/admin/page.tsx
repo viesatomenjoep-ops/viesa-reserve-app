@@ -12,24 +12,29 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
-      <p className="text-slate-500 mb-8">Kies een module om te beheren.</p>
+    <div className="p-10 relative overflow-hidden h-full">
+      {/* Decorative Orbs */}
+      <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="relative z-10 floating">
+        <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">Admin Dashboard</h1>
+        <p className="text-stone-500 mb-10 text-lg">Kies een module om te beheren.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
         {modules.map((m, i) => (
-          <Link key={i} href={m.href} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-100 transition-all group">
+          <Link key={i} href={m.href} className={`glass-panel p-8 rounded-3xl hover:-translate-y-2 hover:shadow-lg transition-all duration-300 group ${i % 2 === 0 ? 'floating' : 'floating-delayed'}`}>
             <div className="flex items-start justify-between">
-              <div className="flex gap-4">
-                <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-indigo-50 transition-colors">
+              <div className="flex gap-5">
+                <div className="p-4 bg-white/60 shadow-sm rounded-2xl group-hover:bg-white transition-colors border border-white/50">
                   {m.icon}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-slate-900">{m.title}</h3>
-                  <p className="text-slate-500 text-sm mt-1">{m.desc}</p>
+                  <h3 className="font-bold font-serif text-2xl text-stone-900">{m.title}</h3>
+                  <p className="text-stone-500 text-md mt-1">{m.desc}</p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+              <ArrowRight className="w-6 h-6 text-stone-300 group-hover:text-amber-500 transition-colors" />
             </div>
           </Link>
         ))}
