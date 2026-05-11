@@ -138,10 +138,7 @@ export default function AdminMapEditor() {
       setLocations(locData);
 
       if (areaData) {
-        const targetVenueId = venue ? venue.id : venuesData?.[0]?.id;
-        const currentLocIds = new Set(locData.filter((l: any) => l.venue_id === targetVenueId || !l.venue_id).map((l: any) => l.id));
-        const filteredAreas = areaData.filter((a: any) => currentLocIds.has(a.location_id));
-        setAreas(filteredAreas);
+        setAreas(areaData);
       }
     }
     if (bedData) setBeds(bedData as {id: string, area_id: string}[]);
@@ -202,7 +199,7 @@ export default function AdminMapEditor() {
   const handleSaveLocation = async () => {
     if (!formData.name) return;
     const tempId = Math.random().toString();
-    const optimisticLoc: Location = { id: tempId, name: formData.name, pos_x: 50, pos_y: 50 };
+    const optimisticLoc: Location = { id: tempId, name: formData.name, pos_x: 50, pos_y: 50, venue_id: venue?.id };
     setLocations([...locations, optimisticLoc]);
     
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
