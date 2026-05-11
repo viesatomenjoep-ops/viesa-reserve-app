@@ -88,7 +88,7 @@ export default function GuestMenuPage() {
       <div className="p-6 max-w-lg mx-auto relative z-20">
         <div className="space-y-6">
           {menu.map((item, i) => (
-            <div key={i} className={`glass-panel rounded-3xl p-4 pr-6 flex items-center justify-between hover:-translate-y-1 transition-all duration-300 ${i % 2 === 0 ? 'floating' : 'floating-delayed'}`}>
+            <div key={i} className="glass-panel rounded-3xl p-4 pr-6 flex items-center justify-between hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-white/60 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-white/50">{item.img}</div>
                 <div>

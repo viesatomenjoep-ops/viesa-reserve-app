@@ -45,14 +45,14 @@ export default function GuestVIPPage() {
       <div className="absolute top-20 left-10 w-96 h-96 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#efe9db]/50 rounded-full blur-3xl floating-delayed pointer-events-none"></div>
 
-      <div className="p-8 text-center relative z-10 floating">
+      <div className="p-8 text-center relative z-10">
         <Star className="w-12 h-12 text-amber-500 mx-auto mb-4" />
         <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight mb-2">VIP Cabana Reservering</h1>
         <p className="text-stone-500 text-lg">Kies exclusieve flessen om je minimum spend te behalen en de cabana te ontgrendelen.</p>
       </div>
 
       <div className="p-6 max-w-lg mx-auto relative z-20">
-        <div className="glass-panel rounded-3xl p-6 mb-8 floating-delayed">
+        <div className="glass-panel rounded-3xl p-6 mb-8">
           <div className="flex justify-between items-end mb-4">
             <div>
               <p className="text-stone-500 text-sm mb-1 uppercase tracking-wider font-semibold">Minimum Spend Doel</p>
@@ -72,7 +72,7 @@ export default function GuestVIPPage() {
         <h2 className="text-xl font-bold font-serif mb-6 text-center">Pre-Order Flessen Menu</h2>
         <div className="space-y-6">
           {bottles.map((b, i) => (
-            <div key={i} className={`glass-panel rounded-3xl p-4 pr-6 flex items-center justify-between hover:-translate-y-1 transition-all duration-300 ${i % 2 === 0 ? 'floating' : 'floating-delayed'}`}>
+            <div key={i} className="glass-panel rounded-3xl p-4 pr-6 flex items-center justify-between hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-white/60 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-white/50">{b.img}</div>
                 <div>

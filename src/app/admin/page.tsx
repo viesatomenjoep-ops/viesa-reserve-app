@@ -16,14 +16,14 @@ export default function AdminDashboard() {
       {/* Decorative Orbs */}
       <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
 
-      <div className="relative z-10 floating">
+      <div className="relative z-10">
         <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">Admin Dashboard</h1>
         <p className="text-stone-500 mb-10 text-lg">Kies een module om te beheren.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
         {modules.map((m, i) => (
-          <Link key={i} href={m.href} className={`glass-panel p-8 rounded-3xl hover:-translate-y-2 hover:shadow-lg transition-all duration-300 group ${i % 2 === 0 ? 'floating' : 'floating-delayed'}`}>
+          <Link key={i} href={m.href} className="glass-panel p-8 rounded-3xl hover:-translate-y-2 hover:shadow-xl transition-all duration-300 group">
             <div className="flex items-start justify-between">
               <div className="flex gap-5">
                 <div className="p-4 bg-white/60 shadow-sm rounded-2xl group-hover:bg-white transition-colors border border-white/50">
