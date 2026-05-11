@@ -23,16 +23,24 @@ export default function Header() {
 
           {/* Navigation Links & Language Selector */}
           <div className="flex items-center space-x-3 sm:space-x-6 ml-auto">
-            {pathname === '/admin' ? (
-              <Link href="/" className="text-sm font-bold text-stone-500 hover:text-emerald-600 transition-colors whitespace-nowrap">
-                <span className="hidden sm:inline">View as Customer</span>
-                <span className="sm:hidden">Website</span> &rarr;
-              </Link>
+            {pathname.startsWith('/admin') ? (
+              <div className="flex gap-4">
+                <Link href="/" className="text-sm font-bold text-stone-500 hover:text-emerald-600 transition-colors whitespace-nowrap">
+                  Home
+                </Link>
+                <Link href="/guest" className="text-sm font-bold text-stone-500 hover:text-amber-600 transition-colors whitespace-nowrap">
+                  Guest Portal
+                </Link>
+              </div>
             ) : (
-              <Link href="/admin" className="text-sm font-bold text-stone-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                <span className="hidden sm:inline">Admin Dashboard</span>
-                <span className="sm:hidden">Admin</span> &rarr;
-              </Link>
+              <div className="flex gap-4">
+                <Link href="/guest" className="text-sm font-bold text-stone-500 hover:text-amber-600 transition-colors whitespace-nowrap">
+                  Guest Portal
+                </Link>
+                <Link href="/admin" className="text-sm font-bold text-stone-500 hover:text-blue-600 transition-colors whitespace-nowrap">
+                  Admin
+                </Link>
+              </div>
             )}
 
             <div className="flex items-center space-x-1 sm:space-x-2 border-l border-stone-200 pl-3 sm:pl-6">

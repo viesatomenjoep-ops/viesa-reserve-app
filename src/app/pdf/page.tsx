@@ -1,7 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+const Card = ({ className, children }: { className?: string, children: React.ReactNode }) => (
+  <div className={`rounded-xl border shadow-sm ${className || ''}`}>{children}</div>
+);
+const CardContent = ({ className, children }: { className?: string, children: React.ReactNode }) => (
+  <div className={`p-6 ${className || ''}`}>{children}</div>
+);
+
 import { Check, Euro, BarChart, Server, Globe, Shield, Play } from 'lucide-react';
 
 export default function BusinessPlanPDF() {
@@ -79,7 +84,7 @@ export default function BusinessPlanPDF() {
               </div>
               <div className="relative aspect-[16/9] w-full bg-black">
                 {/* Fallback color if image is not ready yet */}
-                <img src="/screenshots/frontend.png" alt="Frontend App" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => e.currentTarget.style.display = 'none'} />
+                <img src="/screenshots/frontend.png" alt="Frontend App" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" />
                 <div className="absolute inset-0 flex items-center justify-center -z-10">
                    <p className="text-slate-500">Generating Frontend Screenshot...</p>
                 </div>
@@ -98,7 +103,7 @@ export default function BusinessPlanPDF() {
                 <span className="ml-4 text-sm text-slate-400 font-medium tracking-wide">Management Backend - Admin Dashboard</span>
               </div>
               <div className="relative aspect-[16/9] w-full bg-black">
-                <img src="/screenshots/backend.png" alt="Backend App" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => e.currentTarget.style.display = 'none'} />
+                <img src="/screenshots/backend.png" alt="Backend App" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" />
                 <div className="absolute inset-0 flex items-center justify-center -z-10">
                    <p className="text-slate-500">Generating Backend Screenshot...</p>
                 </div>
