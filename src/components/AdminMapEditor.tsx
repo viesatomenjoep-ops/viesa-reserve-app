@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Plus, Crosshair, Grid, X, Settings2, Edit3, Trash2, Save, MapPin } from 'lucide-react';
 import { clsx } from 'clsx';
 import AdminBedEditor from './AdminBedEditor';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface Location {
   id: string;
@@ -38,6 +39,7 @@ export default function AdminMapEditor() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [allVenues, setAllVenues] = useState<Venue[]>([]);
   const [venue, setVenue] = useState<Venue | null>(null);
+  const { t } = useLanguage();
   
   const [activeArea, setActiveArea] = useState<Area | null>(null);
   
@@ -343,7 +345,7 @@ export default function AdminMapEditor() {
                 }}
                 className="text-sm bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-2 rounded-xl font-bold transition-colors shadow-sm w-full sm:w-auto text-left sm:text-center border border-stone-200"
               >
-                + Beachclub Toevoegen
+                + {t('adminMapAddBeachclub')}
               </button>
             </div>
             <p className="text-stone-500 text-sm mt-1">{venue?.location_address || 'Geen adres ingevuld'}</p>
@@ -355,14 +357,14 @@ export default function AdminMapEditor() {
             onClick={() => setShowVenueModal(true)}
             className="flex justify-center items-center px-4 py-3 rounded-xl font-bold bg-stone-100 text-stone-700 hover:bg-stone-200 transition-all shadow-sm border border-stone-200"
           >
-            Venue Settings
+            {t('adminMapVenueSettings')}
           </button>
           <button 
             onClick={saveMapPositions}
             className="flex justify-center items-center px-6 py-3 rounded-xl font-bold transition-all shadow-sm border-2 bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-700 hover:scale-105"
           >
             <Save className="w-5 h-5 mr-2" />
-            Save Map
+            {t('adminMapSave')}
           </button>
         </div>
       </div>
@@ -423,7 +425,7 @@ export default function AdminMapEditor() {
                            <div className="flex items-center gap-2">
                              <span className="font-bold text-sm text-stone-800 block">{area.name}</span>
                              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                               {beds.filter(b => b.area_id === area.id).length} bedden
+                               {t('mapBedsCount').replace('{count}', beds.filter(b => b.area_id === area.id).length.toString())}
                              </span>
                            </div>
                            <span className="text-[0.65rem] uppercase font-bold text-stone-500 tracking-wider">{area.type}</span>

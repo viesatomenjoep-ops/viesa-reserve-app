@@ -253,8 +253,8 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
               </select>
             </div>
           )}
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900">Select a Location</h2>
-          <p className="text-stone-500 text-sm">Choose your preferred spot at {venue?.name || 'the beach club'}.</p>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900">{t('mapSelectLocation')}</h2>
+          <p className="text-stone-500 text-sm">{t('mapChoosePreferred')}</p>
         </div>
 
         <div className="flex bg-white border border-stone-200 p-1 rounded-xl self-stretch sm:self-auto shadow-sm">
@@ -385,7 +385,7 @@ export default function InteractiveMap({ onBedSelect }: InteractiveMapProps) {
       {viewMode === 'MAP' && (
         <div className="mt-6 flex items-start text-stone-600 text-sm bg-white p-5 rounded-2xl shadow-sm border border-stone-100 hidden sm:flex">
           <Info className="w-5 h-5 mr-3 flex-shrink-0 text-stone-400 mt-0.5" />
-          <p>Explore the beach club map. Hover over a zone to highlight it, and click on any specific area (e.g. "Camas Chiringo") to view the available beds and make a reservation.</p>
+          <p>{t('mapHoverZone')}</p>
         </div>
       )}
     </div>
