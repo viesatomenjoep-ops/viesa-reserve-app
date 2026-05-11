@@ -56,6 +56,7 @@ export default function AdminMapEditor() {
 
   // Drag and drop state
   const [draggedLocationId, setDraggedLocationId] = useState<string | null>(null);
+  const [isDraggingMap, setIsDraggingMap] = useState(false);
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedLocationId(id);
@@ -163,6 +164,74 @@ export default function AdminMapEditor() {
     
     setHasUnsavedMapChanges(true);
     setMovingItem(null);
+  };
+
+  const handleMapDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      if (e.dataTransfer.items[0].kind === 'file') {
+        setIsDraggingMap(true);
+      }
+    }
+  };
+
+  const handleMapDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingMap(false);
+  };
+
+  const handleMapDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingMap(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (!file.type.startsWith('image/')) {
+        alert("Selecteer a.u.b. een geldige afbeelding.");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (typeof event.target?.result === 'string') {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 1920; 
+            let width = img.width;
+            let height = img.height;
+
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            
+            const compressedBase64 = canvas.toDataURL('image/webp', 0.85);
+            
+            if (venue) {
+              const updatedVenue = { ...venue, map_image_url: compressedBase64 };
+              setVenue(updatedVenue);
+              setVenueFormData(prev => ({ ...prev, map_image_url: compressedBase64 }));
+              
+              if (venue.id && venue.id !== 'fallback' && process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+                supabase.from('venues').update({ map_image_url: compressedBase64 }).eq('id', venue.id).then(({error}) => {
+                  if (error) {
+                    alert("Fout bij opslaan van nieuwe plattegrond: " + error.message);
+                  }
+                });
+              }
+            }
+          };
+          img.src = event.target.result;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Explicit Save Map Button
@@ -476,9 +545,13 @@ export default function AdminMapEditor() {
           <div 
             ref={containerRef}
             onClick={handleMapClick}
+            onDragOver={handleMapDragOver}
+            onDragLeave={handleMapDragLeave}
+            onDrop={handleMapDrop}
             className={clsx(
               "relative w-full max-w-7xl aspect-[16/9] bg-stone-100 rounded-3xl shadow-2xl overflow-hidden transition-all duration-300",
-              movingItem ? "cursor-crosshair ring-8 ring-blue-500/50 scale-[0.98]" : "border-4 border-white"
+              movingItem ? "cursor-crosshair ring-8 ring-blue-500/50 scale-[0.98]" : "border-4 border-white",
+              isDraggingMap ? "ring-8 ring-emerald-500 bg-emerald-50 opacity-80" : ""
             )}
             style={{ 
               backgroundImage: venue?.map_image_url ? `url('${venue.map_image_url}')` : 'none', 
@@ -488,7 +561,18 @@ export default function AdminMapEditor() {
           >
             {!venue?.map_image_url && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="text-stone-400 font-bold text-xl opacity-50 uppercase tracking-widest">No map uploaded</span>
+                <span className="text-stone-400 font-bold text-xl opacity-50 uppercase tracking-widest text-center">
+                  {isDraggingMap ? "Sleep plattegrond hierheen" : "No map uploaded. Drag image here."}
+                </span>
+              </div>
+            )}
+            
+            {isDraggingMap && venue?.map_image_url && (
+              <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center z-[100] pointer-events-none rounded-3xl">
+                <div className="bg-white px-8 py-4 rounded-2xl shadow-2xl font-bold text-emerald-700 text-xl flex items-center">
+                  <Plus className="w-8 h-8 mr-3" />
+                  Laat los om in te stellen als plattegrond
+                </div>
               </div>
             )}
             {/* Draw Locations (Zones) */}

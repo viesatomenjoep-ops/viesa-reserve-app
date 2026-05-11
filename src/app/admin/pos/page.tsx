@@ -37,7 +37,7 @@ export default function AdminPOSPage() {
   return (
     <div className="p-8 min-h-screen bg-sand-gradient relative overflow-hidden">
       {/* Decorative Orbs */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="mb-8 relative z-10">
         <h1 className="text-3xl font-bold font-serif text-[#3d3935]">{t('adminPosTitle')}</h1>

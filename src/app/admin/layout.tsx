@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Map, Coffee, Users, TrendingUp, Star, LayoutDashboard, Globe } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
@@ -58,7 +59,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto relative">
+        <LanguageSwitcher />
         {children}
       </main>
     </div>

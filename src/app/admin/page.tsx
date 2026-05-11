@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   return (
     <div className="p-10 relative overflow-hidden h-full">
       {/* Decorative Orbs */}
-      <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
+      <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="relative z-10">
         <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">{t('adminDashboardTitle')}</h1>

@@ -98,7 +98,7 @@ export default function AdminMenuPage() {
   return (
     <div className="p-10 relative overflow-hidden min-h-screen text-[#3d3935]">
       {/* Decorative Orbs */}
-      <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl floating pointer-events-none z-0"></div>
+      <div className="absolute top-10 right-20 w-80 h-80 bg-white/40 rounded-full blur-3xl pointer-events-none z-0"></div>
 
       <div className="mb-10 relative z-10">
         <h1 className="text-4xl font-black font-serif text-[#3d3935] mb-2">{t('adminMenuTitle')}</h1>
