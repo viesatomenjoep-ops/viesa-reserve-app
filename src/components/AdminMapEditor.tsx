@@ -57,6 +57,7 @@ export default function AdminMapEditor() {
   // Drag and drop state
   const [draggedLocationId, setDraggedLocationId] = useState<string | null>(null);
   const [isDraggingMap, setIsDraggingMap] = useState(false);
+  const [isDraggingLogo, setIsDraggingLogo] = useState(false);
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedLocationId(id);
@@ -234,6 +235,50 @@ export default function AdminMapEditor() {
     }
   };
 
+  const handleLogoDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingLogo(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (!file.type.startsWith('image/')) {
+        alert("Selecteer a.u.b. een geldige afbeelding.");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (typeof event.target?.result === 'string') {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 300;
+            const scaleSize = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scaleSize;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressedBase64 = canvas.toDataURL('image/webp', 0.8);
+            
+            if (venue) {
+              const updatedVenue = { ...venue, logo_url: compressedBase64 };
+              setVenue(updatedVenue);
+              setVenueFormData(prev => ({ ...prev, logo_url: compressedBase64 }));
+              
+              if (venue.id && venue.id !== 'fallback' && process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+                supabase.from('venues').update({ logo_url: compressedBase64 }).eq('id', venue.id).then(({error}) => {
+                  if (error) alert("Fout bij opslaan logo: " + error.message);
+                });
+              }
+            }
+          };
+          img.src = event.target.result;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Explicit Save Map Button
   const saveMapPositions = async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
@@ -379,12 +424,27 @@ export default function AdminMapEditor() {
       <div className="bg-white border-b border-stone-200 p-4 sm:p-6 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 shadow-sm z-20 shrink-0">
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center w-full xl:w-auto gap-4">
-          <div className="flex items-center">
-            {venue?.logo_url ? (
-              <img src={venue.logo_url} alt="Venue Logo" className="h-12 w-auto object-contain mr-4 rounded-md bg-stone-50 p-1 border border-stone-100" />
-            ) : (
-              <Settings2 className="mr-3 text-emerald-600 h-10 w-10" />
+          <div 
+            className={clsx("flex items-center relative group p-2 rounded-xl transition-all", isDraggingLogo ? "ring-4 ring-emerald-500 bg-emerald-50" : "hover:bg-stone-50")}
+            onDragOver={(e) => { e.preventDefault(); setIsDraggingLogo(true); }}
+            onDragLeave={() => setIsDraggingLogo(false)}
+            onDrop={handleLogoDrop}
+          >
+            {isDraggingLogo && (
+              <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl border-2 border-emerald-500 border-dashed pointer-events-none">
+                <span className="text-emerald-800 font-bold text-xs text-center leading-tight px-1">Drop Logo<br/>Hier</span>
+              </div>
             )}
+            <div className="relative group/logo cursor-pointer" onClick={() => setShowVenueModal(true)}>
+              {venue?.logo_url ? (
+                <img src={venue.logo_url} alt="Venue Logo" className="h-12 w-auto object-contain mr-2 rounded-md border border-stone-100" />
+              ) : (
+                <Settings2 className="mr-3 text-emerald-600 h-10 w-10" />
+              )}
+              <div className="absolute -inset-2 bg-stone-900/10 rounded-lg opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                <Edit3 className="w-4 h-4 text-stone-700" />
+              </div>
+            </div>
           </div>
           
           <div className="flex flex-col w-full">
@@ -736,8 +796,13 @@ export default function AdminMapEditor() {
                 <div>
                   <label className="block text-sm font-bold text-stone-700 mb-1">Bedrijfslogo (Bovenaan Admin)</label>
                   <div className="flex flex-col gap-2 mt-2 mb-3">
-                    <label className="flex items-center justify-center w-full py-3 px-4 border-2 border-dashed border-stone-300 bg-stone-50 text-stone-600 rounded-xl font-bold cursor-pointer hover:bg-stone-100 transition-colors">
-                      <span className="flex items-center"><Plus className="w-5 h-5 mr-2" /> Upload Logo (Vanaf Computer)</span>
+                    <label 
+                      onDragOver={(e) => { e.preventDefault(); setIsDraggingLogo(true); }}
+                      onDragLeave={() => setIsDraggingLogo(false)}
+                      onDrop={handleLogoDrop}
+                      className={clsx("flex items-center justify-center w-full py-4 px-4 border-2 border-dashed rounded-xl font-bold cursor-pointer transition-colors", isDraggingLogo ? "border-emerald-500 bg-emerald-50 text-emerald-700 scale-105" : "border-stone-300 bg-stone-50 text-stone-600 hover:bg-stone-100")}
+                    >
+                      <span className="flex items-center"><Plus className="w-5 h-5 mr-2" /> Upload of Sleep Logo Hierheen</span>
                       <input type="file" accept="image/*" className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
