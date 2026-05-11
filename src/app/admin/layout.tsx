@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Map, Coffee, Users, TrendingUp, Star, LayoutDashboard } from 'lucide-react';
+import { Map, Coffee, Users, TrendingUp, Star, LayoutDashboard, Globe } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -40,6 +40,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span>VIP Management</span>
           </Link>
         </nav>
+        
+        {/* Link to Frontend */}
+        <div className="p-4 border-t border-slate-800">
+          <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white transition-colors font-bold">
+            <Globe className="w-5 h-5" />
+            <span>Naar Voorkant (Website)</span>
+          </Link>
+        </div>
       </aside>
 
       {/* Main Content */}
