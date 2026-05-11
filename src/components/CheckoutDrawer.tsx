@@ -179,12 +179,22 @@ export default function CheckoutDrawer({ bed, onClose }: CheckoutDrawerProps) {
                      </div>
                   </div>
 
-                  <button 
-                    onClick={handleMockPayment}
-                    className="w-full py-4 bg-emerald-600 text-white rounded-xl font-medium text-lg hover:bg-emerald-700 transition-colors mt-8 flex items-center justify-center shadow-lg shadow-emerald-600/30"
-                  >
-                    Pay €{bed.price} Now
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                    <button 
+                      onClick={handleMockPayment}
+                      className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-medium text-lg hover:bg-emerald-700 transition-colors flex items-center justify-center shadow-lg shadow-emerald-600/30"
+                    >
+                      Pay €{bed.price} Now
+                    </button>
+                    
+                    <a 
+                      href="/guest/vip"
+                      className="flex-1 py-4 bg-gradient-to-r from-amber-200 to-amber-400 text-amber-900 rounded-xl font-bold text-lg hover:from-amber-300 hover:to-amber-500 transition-all flex items-center justify-center shadow-lg shadow-amber-500/20"
+                    >
+                      Upgrade & Pre-order
+                    </a>
+                  </div>
+                  
                   <button 
                     onClick={() => setStep(1)}
                     className="w-full py-4 bg-transparent text-stone-500 hover:text-stone-800 transition-colors mt-2"

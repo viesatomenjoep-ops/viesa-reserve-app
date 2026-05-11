@@ -1,19 +1,43 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme inline {
+  --color-sand-50: #fdfbf7;
+  --color-sand-100: #f7f3ea;
+  --color-sand-200: #efe9db;
+  --color-sand-900: #3d3935;
+  --font-sans: var(--font-inter), sans-serif;
+  --font-serif: var(--font-playfair), serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@utility bg-sand-gradient {
+  background-image: linear-gradient(to bottom right, var(--color-sand-50), var(--color-sand-100), var(--color-sand-200));
+}
+
+@utility glass-panel {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.05);
+}
+
+@utility floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+@utility floating-delayed {
+  animation: float 8s ease-in-out infinite 2s;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-image: linear-gradient(to bottom right, #fdfbf7, #f7f3ea, #efe9db);
+  background-attachment: fixed;
+  color: #3d3935;
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

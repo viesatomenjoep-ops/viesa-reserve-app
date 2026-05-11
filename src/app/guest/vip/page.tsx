@@ -40,52 +40,53 @@ export default function GuestVIPPage() {
   const progress = Math.min(100, (currentSpend / minSpend) * 100);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans pb-32">
-      <div className="bg-gradient-to-br from-indigo-900 to-purple-900 p-8 text-center rounded-b-[40px] shadow-2xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>
-        <div className="relative z-10">
-          <Star className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-          <h1 className="text-3xl font-black tracking-tight mb-2">VIP Cabana Reservering</h1>
-          <p className="text-indigo-200">Kies flessen om je minimum spend te behalen.</p>
-        </div>
+    <div className="min-h-screen bg-sand-gradient font-sans pb-32 relative overflow-hidden text-[#3d3935]">
+      {/* Decorative floating orbs for anti-gravity effect */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-white/40 rounded-full blur-3xl floating pointer-events-none"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#efe9db]/50 rounded-full blur-3xl floating-delayed pointer-events-none"></div>
+
+      <div className="p-8 text-center relative z-10 floating">
+        <Star className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+        <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight mb-2">VIP Cabana Reservering</h1>
+        <p className="text-stone-500 text-lg">Kies exclusieve flessen om je minimum spend te behalen en de cabana te ontgrendelen.</p>
       </div>
 
-      <div className="p-6 max-w-lg mx-auto -mt-6 relative z-20">
-        <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl mb-8">
+      <div className="p-6 max-w-lg mx-auto relative z-20">
+        <div className="glass-panel rounded-3xl p-6 mb-8 floating-delayed">
           <div className="flex justify-between items-end mb-4">
             <div>
-              <p className="text-slate-400 text-sm mb-1">Minimum Spend Doel</p>
-              <p className="text-2xl font-bold">€{currentSpend} <span className="text-slate-500 text-lg">/ €{minSpend}</span></p>
+              <p className="text-stone-500 text-sm mb-1 uppercase tracking-wider font-semibold">Minimum Spend Doel</p>
+              <p className="text-3xl font-bold font-serif">€{currentSpend.toFixed(2)} <span className="text-stone-400 text-xl">/ €{minSpend}</span></p>
             </div>
             {remaining === 0 ? (
-              <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1"><Check className="w-4 h-4"/> Gehaald</span>
+              <span className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-sm"><Check className="w-4 h-4"/> Gehaald</span>
             ) : (
-              <span className="text-amber-400 text-sm font-medium">Nog €{remaining} te gaan</span>
+              <span className="text-amber-600 text-sm font-medium bg-amber-50 px-3 py-1 rounded-full border border-amber-100">Nog €{remaining.toFixed(2)} te gaan</span>
             )}
           </div>
-          <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
-            <div className={`h-full transition-all duration-500 ${remaining === 0 ? 'bg-green-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500'}`} style={{ width: `${progress}%` }}></div>
+          <div className="w-full bg-white rounded-full h-4 overflow-hidden border border-stone-200 shadow-inner">
+            <div className={`h-full transition-all duration-1000 ease-out ${remaining === 0 ? 'bg-emerald-500' : 'bg-gradient-to-r from-amber-300 to-amber-500'}`} style={{ width: `${progress}%` }}></div>
           </div>
         </div>
 
-        <h2 className="text-xl font-bold mb-4">Pre-Order Flessen Menu</h2>
-        <div className="space-y-4">
+        <h2 className="text-xl font-bold font-serif mb-6 text-center">Pre-Order Flessen Menu</h2>
+        <div className="space-y-6">
           {bottles.map((b, i) => (
-            <div key={i} className="bg-slate-900 border border-white/5 rounded-2xl p-4 flex items-center justify-between">
+            <div key={i} className={`glass-panel rounded-3xl p-4 pr-6 flex items-center justify-between hover:-translate-y-1 transition-all duration-300 ${i % 2 === 0 ? 'floating' : 'floating-delayed'}`}>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-2xl">{b.img}</div>
+                <div className="w-16 h-16 bg-white/60 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-white/50">{b.img}</div>
                 <div>
-                  <h3 className="font-bold">{b.name}</h3>
-                  <p className="text-slate-400 text-sm">€{b.price}</p>
+                  <h3 className="font-bold text-lg font-serif">{b.name}</h3>
+                  <p className="text-stone-500 font-medium">€{b.price.toFixed(2)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => updateQty(b, -1)} className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors">
-                  <Minus className="w-4 h-4" />
+                <button onClick={() => updateQty(b, -1)} className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-stone-50 transition-colors text-stone-600 border border-stone-200">
+                  <Minus className="w-5 h-5" />
                 </button>
-                <span className="font-bold w-4 text-center">{getQty(b.name)}</span>
-                <button onClick={() => updateQty(b, 1)} className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center hover:bg-indigo-500 transition-colors text-white">
-                  <Plus className="w-4 h-4" />
+                <span className="font-bold text-xl w-6 text-center font-serif">{getQty(b.name)}</span>
+                <button onClick={() => updateQty(b, 1)} className="w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center hover:bg-stone-800 transition-colors text-white shadow-md">
+                  <Plus className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -93,10 +94,10 @@ export default function GuestVIPPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-slate-950/80 backdrop-blur-xl border-t border-white/10">
+      <div className="fixed bottom-0 left-0 right-0 p-6 glass-panel border-t-0 rounded-t-3xl z-50">
         <button 
           disabled={remaining > 0} 
-          className={`w-full max-w-lg mx-auto block py-4 rounded-xl font-bold text-lg transition-all ${remaining === 0 ? 'bg-white text-slate-950 hover:bg-slate-200' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
+          className={`w-full max-w-lg mx-auto block py-5 rounded-2xl font-bold text-xl transition-all shadow-xl ${remaining === 0 ? 'bg-stone-900 text-white hover:bg-stone-800 hover:-translate-y-1' : 'bg-stone-200 text-stone-400 cursor-not-allowed'}`}
         >
           {remaining === 0 ? "Afrekenen & Bevestigen" : "Haal minimum spend om te boeken"}
         </button>
